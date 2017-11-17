@@ -1,2 +1,17 @@
 <h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<p>Welcome to {{user}}</p>
+<input id="openid" type="text">
+<button onclick="jump()">绑定</button>
+<a href="/logout">取消绑定</a>
+<script>
+    function jump(){
+        var openid=document.getElementById("openid").value;
+        var url="/login";
+        if(openid!=""){
+            url=url+"?openid="+openid;
+            console.log(url);
+        }
+        location.href=url;
+    }
+</script>
+
