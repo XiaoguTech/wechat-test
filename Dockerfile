@@ -1,14 +1,12 @@
-FROM alpine:3.5
+FROM node
 
-RUN apk add --update nodejs
-
-WORKDIR /var/wechat
-
-COPY ./ /var/wechat
+RUN mkdir -p /wechat
+WORKDIR /wechat
+COPY . /wechat
 
 RUN npm install 
 
-VOLUME /var/wechat
+VOLUME /wechat
 
 EXPOSE 3000
 ENTRYPOINT ["npm", "start"]
