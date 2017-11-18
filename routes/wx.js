@@ -1,6 +1,13 @@
+var async=require('async');
 var express = require('express');
-var router = express.Router();
+var fs=require('fs');
+var http=require('http');
+var https=require('https');
+var qs=require('querystring');
+var rawBody=require('raw-body');
 var sha1=require('sha1');
+
+var router = express.Router();
 
 var config={
     wechat:{
@@ -14,20 +21,24 @@ var config={
 router.get('/', function(req, res, next) {
     if (checkSignature(req)) {
         res.send(200, req.query.echostr);
-    } else {
+    }else {
         res.send(200, 'fail');
     }
 });
 
-router.post('/',function(req,res,next){
-    //日志
-    console.log(req.body);    
-    res.on('data',function(chunk){
-      console.log(chunk);
-    });
-    res.end('Hello World');
+router.post('/',async function(req,res,next){
+    await checkAccessToken();
+    // var data = rawBody(this.req,{
+    //     length:this.length,
+    //     limit:'1mb',
+    //     encoding:this.charset
+    // });
+    // console.log('data:'+data);    
+    res.end('Hello World');   
 });
 
+
+//验证微信签名
 function checkSignature(req){
     var token=config.wechat.token;
     var signature=req.query.signature;
@@ -40,11 +51,68 @@ function checkSignature(req){
     var sha=sha1(str);
     if(sha===signature){
         return true;
-    }
-    else{
+    }else{
         return false;
     }
 }
+
+//检查 access_token 是否过期，过期则更新
+function checkAccessToken(){
+    fs.readFile('./data/access_token.db',function(err,data){
+        if(err){
+            throw err;
+        }
+        var jsonObj=JSON.parse(data);
+        var current_time=new Date();
+        var update_time=new Date(jsonObj.update_time);
+        //距离上次更新 access_token 已经过去 7000
+        if((current_time-update_time)>7000000){
+            console.log("Access_token need to be updated");
+            getAccessToken();            
+        }
+    });
+}
+
+
+//获取 access_token
+function getAccessToken(){
+    var url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+config.wechat.appID+"&secret="+config.wechat.appSecret;
+    https.get(url, function(res) {
+        res.on('data',function(d){
+            // process.stdout.write(d);            
+            try{
+                data=JSON.parse(d);
+                if(data.access_token!=undefined){
+                    console.log("Got a new access_token: "+data.access_token);
+                    updateAccessToken(data.access_token);
+                }else{
+                    console.log("Fail to get a new access_token!");
+                }
+            }catch(e){
+                console.log("An error happen when the services try to format a response for getting a new access_token");
+            }
+        })
+    }).on('error', function(e) {
+        console.log("Got error: " + e.message);
+    });
+}
+
+//更新 access_token 文件
+function updateAccessToken(access_token){
+    var date=new Date();
+    var obj={};
+    obj.access_token=access_token;
+    obj.update_time=date;
+    fs.writeFile('./data/access_token.db',JSON.stringify(obj),function(err){
+        if(err){
+            throw err;
+        }
+        console.log("A new access_token is saved");
+    });
+
+}
+
+
 
 module.exports = router;
 
