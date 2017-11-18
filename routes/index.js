@@ -6,8 +6,8 @@ var querystring=require('querystring');
 var router = express.Router();
 var session = require('express-session');
 var filestore=require('session-file-store')(session);
-var weixin=require('weixin-api');
 var bodyParser=require('body-parser');
+
 //session
 router.use(session({
   secret: 'BrokenArrow',
@@ -25,20 +25,11 @@ router.use(function (req, res, next) {
   } 
   next();
 })
-weixin.token='xiaogu';
-/* GET home page. */
+
 router.get('/', function(req, res, next) {
-  if(req.query.signature!=undefined){
-    if (weixin.checkSignature(req)) {
-      res.send(200, req.query.echostr);
-    } else {
-      res.send(200, 'fail');
-    }
-  }
-  else{
-    res.render('index', { title: 'Express',user:req.session.user});    
-  }
+  res.render('index', { title: 'Express' });
 });
+
 router.get('/login',function(req,res){
   var openid=req.query.openid;
   var openExist=false;
