@@ -6,6 +6,8 @@ var https=require('https');
 var qs=require('querystring');
 var rawBody=require('raw-body');
 var sha1=require('sha1');
+var utils=require('utils');
+var xml2js=require('xml2js');
 
 var router = express.Router();
 
@@ -28,13 +30,52 @@ router.get('/', function(req, res, next) {
 
 router.post('/',async function(req,res,next){
     await checkAccessToken();
-    // var data = rawBody(this.req,{
-    //     length:this.length,
-    //     limit:'1mb',
-    //     encoding:this.charset
-    // });
-    // console.log('data:'+data);    
-    res.end('Hello World');   
+    var text="";
+    var buf="";
+    var midObject={};
+    req.setEncoding('utf8');
+    //二进制转 xml
+    req.on('data', function(chunk){ 
+        buf += chunk;
+        // xml2js 默认将子节点的值变为数组，将 explicitArray 设为 false 即可
+        xml2js.parseString(buf,{explicitArray : false},function(err, json) {
+            midObject.err=err;
+            midObject.json=json;
+        });
+        if(midObject.err){
+            throw midObject.err;
+        }else{
+            var createTime = new Date().getTime();   
+            console.log(midObject.json);         
+            if(midObject.json.xml.MsgType === 'event'){
+                if(midObject.json.xml.Event === 'subscribe'){
+                    text=text+'<xml>'+
+                    '<ToUserName><![CDATA['+ midObject.json.xml.FromUserName +']]></ToUserName>'+
+                    '<FromUserName><![CDATA['+ midObject.json.xml.ToUserName +']]></FromUserName>'+
+                    '<CreateTime>'+createTime+'</CreateTime>'+
+                    '<MsgType><![CDATA[text]]></MsgType>'+
+                    '<Content><![CDATA[终于等到你，还好我没放弃]]></Content>'+
+                    '</xml>';
+                }
+              }
+              else if(midObject.json.xml.MsgType === 'text'){
+                text=text+'<xml>'+
+                '<ToUserName><![CDATA['+ midObject.json.xml.FromUserName +']]></ToUserName>'+
+                '<FromUserName><![CDATA['+ midObject.json.xml.ToUserName +']]></FromUserName>'+
+                '<CreateTime>'+createTime+'</CreateTime>'+
+                '<MsgType><![CDATA[text]]></MsgType>'+
+                '<Content><![CDATA[您好，你的Openid是'+midObject.json.xml.FromUserName+']]></Content>'+
+                '</xml>';
+              }
+
+            // handleMessage(midObject.json.xml,res);            
+        }
+    });
+    req.on('end', function(chunk){ 
+        res.status(200);
+        res.contentType('application/xml');
+        res.send(text);
+    });
 });
 
 
@@ -109,11 +150,19 @@ function updateAccessToken(access_token){
         }
         console.log("A new access_token is saved");
     });
-
 }
 
-
-
+// function handleMessage(message,res){
+//     if(message.MsgType==='event'){
+//         if(message.Event === 'subscribe'){
+//             var createTime = new Date().getTime();
+//             res.status = 200;
+//             res.set()
+//             that.type = 'application/xml';
+//             return;
+//           }
+//     }
+// }
 module.exports = router;
 
 
