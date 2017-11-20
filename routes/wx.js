@@ -63,7 +63,7 @@ router.post('/',async function(req,res,next){
                     '<FromUserName><![CDATA['+ midObject.json.xml.ToUserName +']]></FromUserName>'+
                     '<CreateTime>'+createTime+'</CreateTime>'+
                     '<MsgType><![CDATA[text]]></MsgType>'+
-                    '<Content><![CDATA[终于等到你，还好我没放弃！欢迎关注沈阳啸谷科技有限公司]]></Content>'+
+                    '<Content><![CDATA[欢迎关注沈阳啸谷科技有限公司]]></Content>'+
                     '</xml>';
                 }
               }

@@ -19,11 +19,12 @@
                         <div class="loginContent">
                             <form class="loginForm" name="loginForm" id="loginForm" action="#" method="post">
                                 <div class="userField">
-                                    <input name="username" type="text" placeholder="邮箱" required="required" id="username"/>
+                                    <input name="username" type="text" placeholder="组织代码" required="required" id="username"/>
                                 </div>
                                 <div class="pswField">
-                                    <input name="password" type="password" placeholder="密码" required="required" id="password"/>
+                                    <input name="password" type="password" placeholder="Token" required="required" id="password"/>
                                 </div>
+                                <input type="hidden" value={{openid}} id="openid">
                                 <input value="登录" type="submit">
                             </form>
                         </div>
@@ -42,7 +43,8 @@
             $('#loginForm').submit(function(){
                 var username =$("#username").val();
                 var password=$("#password").val();
-                var data={"username":username,"password":password};
+                var openid=$("#openid").val();
+                var data={"username":username,"password":password,"openid":openid};
                 var re=/\w+[+-\w]*@\w+[+-\w]*.\w+[+-\w]*/g;
                 //邮箱格式正确
                 if($('#username').val().match(re)){
