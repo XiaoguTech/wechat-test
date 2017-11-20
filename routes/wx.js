@@ -15,7 +15,16 @@ var config={
     wechat:{
       appID:'wxdb3fd49799fafa0f',
       appSecret:'22d4ef99ea1984a33b44d18ee90f9d0a',
-      token:'xiaogu'
+      token:'xiaogu',
+      prefix:'https://api.weixin.qq.com'
+    },
+    api:{
+        menu:{
+            create:'/cgi-bin/menu/create?',
+            get:'/cgi-bin/menu/get?',
+            delete:'/cgi-bin/menu/delete?',
+            genInfo:'/cgi-bin/menu/get_current_selfmenu_info?'
+        }
     }
 }
 
@@ -54,7 +63,7 @@ router.post('/',async function(req,res,next){
                     '<FromUserName><![CDATA['+ midObject.json.xml.ToUserName +']]></FromUserName>'+
                     '<CreateTime>'+createTime+'</CreateTime>'+
                     '<MsgType><![CDATA[text]]></MsgType>'+
-                    '<Content><![CDATA[终于等到你，还好我没放弃]]></Content>'+
+                    '<Content><![CDATA[终于等到你，还好我没放弃！欢迎关注沈阳啸谷科技有限公司]]></Content>'+
                     '</xml>';
                 }
               }
@@ -64,7 +73,7 @@ router.post('/',async function(req,res,next){
                 '<FromUserName><![CDATA['+ midObject.json.xml.ToUserName +']]></FromUserName>'+
                 '<CreateTime>'+createTime+'</CreateTime>'+
                 '<MsgType><![CDATA[text]]></MsgType>'+
-                '<Content><![CDATA[您好，你的Openid是'+midObject.json.xml.FromUserName+']]></Content>'+
+                '<Content><![CDATA[您好，您的Openid是'+midObject.json.xml.FromUserName+']]></Content>'+
                 '</xml>';
               }
 
@@ -77,6 +86,50 @@ router.post('/',async function(req,res,next){
         res.send(text);
     });
 });
+
+router.get('/redirect',function(req,res,next){
+    var destination=req.query['jump'];
+    var url="https://open.weixin.qq.com/connect/oauth2/authorize?appid="+config.wechat.appID+"&redirect_uri=http://wechat.xiaogu-tech.com/wx/oauth/?jump="+destination+"?response_type=code&scope=snsapi_base&state=1&connect_redirect=1#wechat_redirect";
+    res.redirect(url);
+    console.log(url);
+    res.end();
+});
+
+router.get('/oauth',function(req,res,next){
+    var code=req.query['code'];
+    var url="https://api.weixin.qq.com/sns/oauth2/access_token?appid="+config.wechat.appID+"&secret="+config.wechat.appSecret+"&code="+code+"&grant_type=authorization_code";
+    https.get(url, function(res) {
+        res.on('data',function(d){
+            try{
+                data=JSON.parse(d);
+                if(data.openid!=undefined){
+                    console.log(data.openid);
+                    res.render('index', { openid:openid});
+                }else{
+                    console.log("Fail to get a openid!");
+                }
+            }catch(e){
+                console.log("An error happen when the services try to format a response for getting a openid");
+            }
+            // //有了用户的opendi就可以的到用户的信息了
+            // //地址为https://api.weixin.qq.com/sns/userinfo?access_token=ACCESS_TOKEN&openid=OPENID&lang=zh_CN
+            // //得到用户信息之后返回到一个页面
+            // model.addAttribute("user", wechatUser);
+            // return "vip/userInfo";
+        })
+    }).on('error', function(e) {
+        console.log("Got error: " + e.message);
+    });
+});
+
+// router.post('/createmenu',async  function(req,res,next){
+//     await checkAccessToken();  
+//     createMenu();
+//     res.end();
+// })
+
+
+
 
 
 //验证微信签名
@@ -104,12 +157,20 @@ function checkAccessToken(){
             throw err;
         }
         var jsonObj=JSON.parse(data);
-        var current_time=new Date();
-        var update_time=new Date(jsonObj.update_time);
-        //距离上次更新 access_token 已经过去 7000
-        if((current_time-update_time)>7000000){
-            console.log("Access_token need to be updated");
-            getAccessToken();            
+        if(jsonObj['access_token']==undefined){
+            console.log("There is no access_token now");
+            getAccessToken();       
+        }
+        else{
+            var current_time=new Date();
+            var update_time=new Date(jsonObj.update_time);
+            //距离上次更新 access_token 已经过去 7000
+            if((current_time-update_time)>7000000){
+                console.log("Access_token need to be updated");
+                getAccessToken();            
+            }else{
+                config.wechat.access_token=jsonObj['access_token'];
+            }
         }
     });
 }
@@ -117,7 +178,7 @@ function checkAccessToken(){
 
 //获取 access_token
 function getAccessToken(){
-    var url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+config.wechat.appID+"&secret="+config.wechat.appSecret;
+    var url=config.wechat.prefix+"/cgi-bin/token?grant_type=client_credential&appid="+config.wechat.appID+"&secret="+config.wechat.appSecret;
     https.get(url, function(res) {
         res.on('data',function(d){
             // process.stdout.write(d);            
@@ -150,19 +211,49 @@ function updateAccessToken(access_token){
         }
         console.log("A new access_token is saved");
     });
+    config.wechat.access_token=access_token;
 }
 
-// function handleMessage(message,res){
-//     if(message.MsgType==='event'){
-//         if(message.Event === 'subscribe'){
-//             var createTime = new Date().getTime();
-//             res.status = 200;
-//             res.set()
-//             that.type = 'application/xml';
-//             return;
-//           }
-//     }
-// }
+
+
+function createMenu(){
+    checkAccessToken();
+    fs.readFile('./data/menu.db',function(err,data){
+        if(err){
+            throw err;
+        }
+        var jsonStr=JSON.stringify(JSON.parse(data));
+        // var url=config.wechat.prefix+config.api.menu.create+'access_token'+config.wechat.access_token;
+        var post_options = {
+            host: config.wechat.prefix,
+            path: config.api.menu.create,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': jsonStr.length
+            }
+          };
+         
+          var post_req = http.request(post_options, function (response) {
+            var responseText=[];
+            var size = 0;
+            response.on('data', function (data) {
+              responseText.push(data);
+              size+=data.length;
+            });
+            response.on('end', function () {
+              responseText = Buffer.concat(responseText,size);
+              console.log(responseText);
+            });
+          });
+
+          post_req.end();
+    });
+}
+
+
+
+
 module.exports = router;
 
 
