@@ -19,29 +19,30 @@ body {
 @media screen and (max-width: 400px)
 {
   .sub_frame{
+    border: none;
     height: 150px;
   }
 }
 @media (min-width:400px) and (max-width: 600px)
 {
   .sub_frame{
+    border: none;    
     height: 200px;
   }
 }
 @media (min-width: 600px) and (max-width:800px){
   .sub_frame{
+    border:none;    
     height: 250px;
   }
 }
 @media screen and (min-width:800px){
   .sub_frame{
+    border: none;    
     height: 300px;
   }
 }
 </style>
-<script>
-$('.ui.embed').embed();
-</script>
 {{!-- 展示默认图表以及result中的对应图表 --}}
 {{#if result}}
   <div class="ui main container">
