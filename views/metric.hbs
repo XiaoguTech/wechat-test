@@ -47,7 +47,7 @@ body {
 {{#if result}}
   <div class="ui main container">
     {{#each result}}
-      <h1 class="ui header">{{this.name}}</h1>
+      <h1 class="ui header"><a href="{{this.url}}" target="_blank">{{this.name}}</a></h1>
       <iframe src={{this.url}} width="100%" class="sub_frame"></iframe>
     {{/each}}
   </div>
