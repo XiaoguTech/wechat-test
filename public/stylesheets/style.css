@@ -7,7 +7,7 @@ a {
   color: #00B7FF;
 }
 
-// 响应式布局
+/* // 响应式布局
 @media screen and (max-width: 360px)
 {
 	html{font-size:50px;}
@@ -98,4 +98,4 @@ a {
 		scrolling: no;
 		frameborder: 0;
 	}
-}
+} */

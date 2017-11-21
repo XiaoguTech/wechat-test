@@ -18,7 +18,8 @@ router.get('/', function(req, res) {
       title: '图表显示',
       result: loadedURL.metric,
       normalMenu: loadedURL.normalMenu,
-      alertMenu: loadedURL.alertMenu
+      alertMenu: loadedURL.alertMenu,
+      user: req.session.user
     });
   }
   else{
@@ -33,7 +34,8 @@ router.get('/monitor/:id', function(req, res) {
         title: '监控'+(categoryId+1)+'显示',
         result: loadedURL.normalMenu[categoryId].metric,
         normalMenu: loadedURL.normalMenu,
-        alertMenu: loadedURL.alertMenu
+        alertMenu: loadedURL.alertMenu,
+        user: req.session.user
       });
       // res.send(loadedURL.normalMenu[categoryId].metric);
   }else{
@@ -49,7 +51,8 @@ router.get('/alert/:id', function(req, res) {
       title: '报警'+(categoryId+1)+'显示',
       result: loadedURL.alertMenu[categoryId].metric,
       normalMenu: loadedURL.normalMenu,
-      alertMenu: loadedURL.alertMenu
+      alertMenu: loadedURL.alertMenu,
+      user: req.session.user
     });
   }else{
     res.redirect('/login');     

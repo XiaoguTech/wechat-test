@@ -17,31 +17,27 @@
     padding: 5em 0em;
   }
   </style>
+
 {{!-- 展示默认图表以及result中的对应图表 --}}
 {{#if result}}
-  <div class="ui main text container">
+  <div class="ui main container">
     <h1 class="ui header">默认1</h1>
-    <iframe src="http://grafana.xiaogu-tech.com:3000/dashboard-solo/db/new-dashboard-copy?orgId=2&panelId=1">
-    </iframe>
+    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
     <h1 class="ui header">默认2</h1>
-    <iframe src="http://grafana.xiaogu-tech.com:3000/dashboard-solo/db/new-dashboard-copy?orgId=2&panelId=1">
-    </iframe>
+    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
     {{!-- result中所有的内容 --}}
     {{#each result}}
       <h1 class="ui header">{{this.name}}</h1>
-      <iframe src={{this.url}}></iframe>
+      <div class="ui embed" data-url={{this.url}} data-placeholder="/images/bear-waving.jpg"></div>
     {{/each}}
   </div>
 {{else}}
 {{!-- 展示默认图表 --}}
   <div class="ui main text container">
     <h1 class="ui header">默认1</h1>
-    <iframe src="http://grafana.xiaogu-tech.com:3000/dashboard-solo/db/new-dashboard-copy?orgId=2&panelId=1">
-    </iframe>
-
+    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
     <h1 class="ui header">默认2</h1>
-    <iframe src="http://grafana.xiaogu-tech.com:3000/dashboard-solo/db/new-dashboard-copy?orgId=2&panelId=1">
-    </iframe>
+    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
   </div>
 {{/if}}
 
