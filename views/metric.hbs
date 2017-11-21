@@ -1,43 +1,67 @@
 {{!-- 显示图表 --}}
-  <style type="text/css">
-  body {
-    background-color: #FFFFFF;
+<style type="text/css">
+body {
+  background-color: #FFFFFF;
+}
+.ui.menu .item img.logo {
+  margin-right: 1.5em;
+}
+.main.container {
+  margin-top: 7em;
+}
+.wireframe {
+  margin-top: 2em;
+}
+.ui.footer.segment {
+  margin: 5em 0em 0em;
+  padding: 5em 0em;
+}
+@media screen and (max-width: 400px)
+{
+  .sub_frame{
+    height: 150px;
   }
-  .ui.menu .item img.logo {
-    margin-right: 1.5em;
+}
+@media (min-width:400px) and (max-width: 600px)
+{
+  .sub_frame{
+    height: 200px;
   }
-  .main.container {
-    margin-top: 7em;
+}
+@media (min-width: 600px) and (max-width:800px){
+  .sub_frame{
+    height: 250px;
   }
-  .wireframe {
-    margin-top: 2em;
+}
+@media screen and (min-width:800px){
+  .sub_frame{
+    height: 300px;
   }
-  .ui.footer.segment {
-    margin: 5em 0em 0em;
-    padding: 5em 0em;
-  }
-  </style>
-
+}
+</style>
+<script>
+$('.ui.embed').embed();
+</script>
 {{!-- 展示默认图表以及result中的对应图表 --}}
 {{#if result}}
   <div class="ui main container">
     <h1 class="ui header">默认1</h1>
-    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
+    <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" width="100%" class="sub_frame"></iframe>
     <h1 class="ui header">默认2</h1>
-    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
+    <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" width="100%" class="sub_frame"></iframe>
     {{!-- result中所有的内容 --}}
     {{#each result}}
       <h1 class="ui header">{{this.name}}</h1>
-      <div class="ui embed" data-url={{this.url}} data-placeholder="/images/bear-waving.jpg"></div>
+      <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" width="100%" class="sub_frame"></iframe>
     {{/each}}
   </div>
 {{else}}
 {{!-- 展示默认图表 --}}
   <div class="ui main text container">
     <h1 class="ui header">默认1</h1>
-    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
+    <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" width="100%" class="sub_frame"></iframe>
     <h1 class="ui header">默认2</h1>
-    <div class="ui embed" data-url="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" data-placeholder="/images/bear-waving.jpg"></div>
+    <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?orgId=1&panelId=1" width="100%" class="sub_frame"></iframe>
   </div>
 {{/if}}
 
