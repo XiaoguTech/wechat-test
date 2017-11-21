@@ -74,10 +74,9 @@ router.post('/',async function(req,res,next){
                 '<ToUserName><![CDATA['+ midObject.json.xml.FromUserName +']]></ToUserName>'+
                 '<FromUserName><![CDATA['+ midObject.json.xml.ToUserName +']]></FromUserName>'+
                 '<CreateTime>'+createTime+'</CreateTime>'+
-                '<MsgType><![CDATA[text]]></MsgType>'+
-                '<Content><![CDATA[您好，请绑定您的Openid账号：]]></Content>'+
                 '<MsgType><![CDATA[link]]></MsgType>'+
                 '<Title><![CDATA[点击绑定]]></Title>'+
+                '<Description><![CDATA[您好，请绑定您的Openid账号：]]></Description>'+
                 '<Url><![CDATA[http://wechat.xiaogu-tech.com/login?openid='+midObject.json.xml.FromUserName+']]></Url>'+
                 '</xml>';
                 
