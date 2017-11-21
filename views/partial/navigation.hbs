@@ -130,7 +130,7 @@
 					监控 <i class="dropdown icon"></i>
 					<div class="menu">
 						{{#each normalMenu}}
-							<a class="item" href="/metric/monitor/{{this.category}}">{{this.name}}</a>
+							<a class="item" href="/metric/monitor/{{this.category_id}}">{{this.category_name}}</a>
 						{{/each}}
 					</div>
 				</div>
@@ -138,18 +138,18 @@
 					<a class="item" href="/metric">监控</a>
 			{{/if}}
 
-			{{#if alertMenu}}
-				<div class="ui simple dropdown item">
-					报警 <i class="dropdown icon"></i>
-					<div class="menu">
-						{{#each alertMenu}}
-							<a class="item" href="/metric/alert/{{this.category}}">{{this.name}}</a>
-						{{/each}}
-					</div>
-				</div>
-			{{else}}
-					<a class="item" href="/metric/alert">报警</a>
-			{{/if}}
+			<a class="item" href="/metric/alert">报警</a>
+{{!--       {{#if alertMenu}}
+        <div class="ui simple dropdown item">
+          报警 <i class="dropdown icon"></i>
+          <div class="menu">
+            {{#each alertMenu}}
+              <a class="item" href="/metric/alert/{{this.category}}">{{this.name}}</a>
+            {{/each}}
+          </div>
+        </div>
+      {{else}}
+			{{/if}} --}}
 
 			<div class="right item">
 				{{#if user}}

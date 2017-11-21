@@ -21,7 +21,7 @@
           </div>
           <div class="menu">
             {{#each normalMenu}}
-							<a class="item" href="/metric/monitor/{{this.category}}">{{this.name}}</a>
+							<a class="item" href="/metric/monitor/{{this.category_id}}">{{this.category_name}}</a>
 						{{/each}}
           </div>
 				</div>
@@ -29,8 +29,9 @@
 					<a class="item" href="/metric">监控</a>
 			{{/if}}
 
-      {{#if alertMenu}}
-				<div class="item">
+			<a class="item" href="/metric/alert">报警</a>
+      {{!-- {{#if alertMenu}}
+        <div class="item">
           <div class="header">
             报警
           </div>
@@ -39,10 +40,10 @@
                 <a class="item" href="/metric/alert/{{this.category}}">{{this.name}}</a>
               {{/each}}
           </div>
-				</div>
-			{{else}}
-			  <a class="item" href="/metric/alert">报警</a>
-			{{/if}}
+        </div>
+      {{else}}
+        <a class="item" href="/metric/alert">报警</a>
+			{{/if}} --}}
 
       {{#if user}}
         <a class="item" href="/logout">注销</a>

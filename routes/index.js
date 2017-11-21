@@ -12,17 +12,7 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: '首页',user: req.session.user });
 });
 
-
-// router.get('/login', function (req, res){
-//   res.render('login', {
-//   	title: '登录'
-//   });
-// });
-
-// router.post('/login_action', function (req, res){
-// 	res.redirect('/metric');
-// });
-
+// 登录
 router.get('/login',function(req,res){
   console.log("login...");
   var openid=req.query.openid;
@@ -61,7 +51,7 @@ router.get('/login',function(req,res){
 
   }
 });
-
+// 验证登录
 router.post('/checkLogin',function(req,res){
   var uname=req.body['username'];
   var pwd=req.body['password'];
@@ -108,7 +98,7 @@ router.post('/checkLogin',function(req,res){
     res.end();
   });
 });
-
+// 登出
 router.get('/logout',function(req,res){
   if(req.session.openid!=null && req.session.openid!=""){
     fs.readFile('./data/openid.db',function(err,data){
