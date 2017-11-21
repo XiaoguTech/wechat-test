@@ -1,0 +1,21 @@
+  {
+        "button":
+        [
+            {
+                "name": "功能",
+                "sub_button":
+                [
+                    {
+                        "type": "view",
+                        "name": "绑定微信",
+                        "url": "http://wechat.xiaogu-tech.com/wx/redirect?jump=bind"
+                    },
+                    {
+                        "type": "view",
+                        "name": "查看监控",
+                        "url": "http://wechat.xiaogu-tech.com/wx/redirect?jump=check"
+                    }
+                ]
+            }
+          ]
+    }
