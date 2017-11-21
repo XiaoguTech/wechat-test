@@ -1,13 +1,16 @@
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 var express = require('express');
-var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-
+var path = require('path');
+var session = require('express-session');
+var filestore=require('session-file-store')(session);
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var alertIndex = require('./routes/alert.js');
+var metricIndex = require('./routes/metric.js');
 var wx=require('./routes/wx')
 
 var app = express();
@@ -16,6 +19,27 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
+//session
+app.use(session({
+  secret: 'BrokenArrow',
+  resave: false,
+  saveUninitialized:true,
+  store:new filestore(),
+  cookie:{
+    maxAge:1000*60*60 
+  }
+}));
+
+app.use(function (req, res, next) {
+  if (!req.session.user) {
+    req.session.user = null;
+    req.session.openid=null;
+  } 
+  next();
+})
+
+var hbs = require("hbs");
+hbs.registerPartials(__dirname+"/views/partial/");
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -27,6 +51,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/alert', alertIndex);
+app.use('/metric', metricIndex);
 app.use('/wx',wx);
 
 // catch 404 and forward to error handler
@@ -35,9 +61,6 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
-
-
-
 
 // error handler
 app.use(function(err, req, res, next) {

@@ -38,8 +38,6 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/',async function(req,res,next){
-    console.log("wx/");
-    console.log(JSON.stringify(req.headers));
     await checkAccessToken();
     var text="";
     var buf="";
@@ -74,12 +72,9 @@ router.post('/',async function(req,res,next){
                 '<ToUserName><![CDATA['+ midObject.json.xml.FromUserName +']]></ToUserName>'+
                 '<FromUserName><![CDATA['+ midObject.json.xml.ToUserName +']]></FromUserName>'+
                 '<CreateTime>'+createTime+'</CreateTime>'+
-                '<MsgType><![CDATA[link]]></MsgType>'+
-                '<Title><![CDATA[点击绑定]]></Title>'+
-                '<Description><![CDATA[您好，请绑定您的Openid账号：]]></Description>'+
-                '<Url><![CDATA[http://wechat.xiaogu-tech.com/login?openid='+midObject.json.xml.FromUserName+']]></Url>'+
+                '<MsgType><![CDATA[text]]></MsgType>'+
+                '<Content><![CDATA[您好，您的Openid是'+midObject.json.xml.FromUserName+']]></Content>'+
                 '</xml>';
-                
               }
 
             // handleMessage(midObject.json.xml,res);            
@@ -93,8 +88,6 @@ router.post('/',async function(req,res,next){
 });
 
 router.get('/redirect',function(req,res,next){
-    console.log("redirect:");
-    console.log(JSON.stringify(req.headers));    
     var destination=req.query['jump'];
     var url="https://open.weixin.qq.com/connect/oauth2/authorize?appid="+config.wechat.appID+"&redirect_uri=http://wechat.xiaogu-tech.com/wx/oauth/?jump="+destination+"?response_type=code&scope=snsapi_base&state=1&connect_redirect=1#wechat_redirect";
     res.redirect(url);
@@ -103,8 +96,6 @@ router.get('/redirect',function(req,res,next){
 });
 
 router.get('/oauth',function(req,res,next){
-    console.log("oauth:");
-    console.log(JSON.stringify(req.headers));    
     var code=req.query['code'];
     var url="https://api.weixin.qq.com/sns/oauth2/access_token?appid="+config.wechat.appID+"&secret="+config.wechat.appSecret+"&code="+code+"&grant_type=authorization_code";
     https.get(url, function(res) {

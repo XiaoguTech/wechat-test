@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
+/* GET alert page. */
 router.get('/', function(req, res, next) {
   if(req.session.user!=null){
-    res.send('respond with a resource');
+    res.render('metric', { title: 'alert' });    
   }else{
     res.redirect('/login');     
   }

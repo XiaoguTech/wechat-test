@@ -1,17 +1,12 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{user}}</p>
-<input id="openid" type="text" value={{openid}}>
-<button onclick="jump()">绑定</button>
-<a href="/logout">取消绑定</a>
-<script>
-    function jump(){
-        var openid=document.getElementById("openid").value;
-        var url="/login";
-        if(openid!=""){
-            url=url+"?openid="+openid;
-            console.log(url);
-        }
-        location.href=url;
-    }
-</script>
-
+{{!-- 首页内容 --}}
+<div class="pusher">
+  <div class="ui inverted vertical masthead center aligned segment">
+    <div class="ui text container">
+      <h1 class="ui inverted header">
+        Imagine-a-Company
+      </h1>
+      <h2>{{user}}</h2>
+      <div class="ui huge primary button" href="/login">Get Started <i class="right arrow icon"></i></div>
+    </div>
+  </div>
+</div>

@@ -1,64 +1,64 @@
-var http = require('http');
-var util = require('util');
+var bodyParser=require('body-parser');
 var express = require('express');
 var fs=require('fs');
+var util = require('util');
 var querystring=require('querystring');
 var router = express.Router();
-var session = require('express-session');
-var filestore=require('session-file-store')(session);
-var bodyParser=require('body-parser');
+var http = require('http');
 
-//session
-router.use(session({
-  secret: 'BrokenArrow',
-  resave: false,
-  saveUninitialized:false,
-  store:new filestore(),
-  cookie:{
-    maxAge:10*1000
-  }
-}));
 
-router.use(function (req, res, next) {
-  if (!req.session.user) {
-    req.session.user = null;
-    req.session.openid=null;
-  } 
-  next();
-})
 
 router.get('/', function(req, res, next) {
-  res.render('index', { user: req.session.user });
+  res.render('index', { title: '首页',user: req.session.user });
 });
 
+
+// router.get('/login', function (req, res){
+//   res.render('login', {
+//   	title: '登录'
+//   });
+// });
+
+// router.post('/login_action', function (req, res){
+// 	res.redirect('/metric');
+// });
+
 router.get('/login',function(req,res){
+  console.log("login...");
   var openid=req.query.openid;
+  console.log(openid);        
   var openExist=false;
   if(req.session.user!=null){
     res.redirect('/');
   }
   else{
-    fs.readFile('./data/openid.db',function(err,data){
-      if(err){
-        throw err;
-      }
-      var jsonObj=JSON.parse(data);
-      var openList=jsonObj["open"];
-      for(var obj in openList){
-        if(openList[obj].openid==openid){
-          req.session.user=openList[obj].username;
-          req.session.openid=openList[obj].openid;
-          openExist=true;
-          break;
+    if(openid!=undefined){
+      fs.readFile('./data/openid.db',function(err,data){
+        if(err){
+          throw err;
         }
-      }
-      if(openExist){
-        res.redirect('/');
-      }
-      else{
-        res.render('login',{ openid:openid});    
-      }
-    });
+        var jsonObj=JSON.parse(data);
+        var openList=jsonObj["open"];
+        for(var obj in openList){
+          if(openList[obj].openid==openid){
+            req.session.user=openList[obj].username;
+            req.session.openid=openList[obj].openid;
+            openExist=true;
+            break;
+          }
+        }
+        if(openExist){
+          res.redirect('/');
+        }
+        else{
+          res.render('login',{ openid:openid});    
+        }
+      });
+    }
+    else{
+      res.render('login');      
+    }
+
   }
 });
 
@@ -75,25 +75,32 @@ router.post('/checkLogin',function(req,res){
     var userList=jsonObj["user"];
     for(var obj in userList){
       if(userList[obj].username==uname && userList[obj].token==pwd){
-        fs.readFile('./data/openid.db',function(err,data){
-          if(err){
-            throw err;
-          }
-          var jsonObj=JSON.parse(data);
-          var obj={};
-          obj.username=uname;
-          obj.openid=openid;
-          jsonObj.open.push(obj);
-          fs.writeFile('./data/openid.db',JSON.stringify(jsonObj),function(err){
+        if(openid!=undefined){
+          fs.readFile('./data/openid.db',function(err,data){
             if(err){
-                throw err;
+              throw err;
             }
-            console.log("A new openid is saved");
-          });
-        })
-        status=200;
-        req.session.user=uname;
-        req.session.openid=openid;        
+            var jsonObj=JSON.parse(data);
+            var obj={};
+            obj.username=uname;
+            obj.openid=openid;
+            jsonObj.open.push(obj);
+            fs.writeFile('./data/openid.db',JSON.stringify(jsonObj),function(err){
+              if(err){
+                  throw err;
+              }
+              console.log("A new openid is saved");
+            });
+          })
+          status=200;
+          req.session.user=uname;
+          req.session.openid=openid; 
+          console.log("Bind and login");
+        }else{
+          status=200;
+          req.session.user=uname;
+          console.log("Login but not bind")
+        }
         break;
       }
     }
@@ -139,5 +146,4 @@ router.get('/logout',function(req,res){
 
 
 });
-
 module.exports = router;
