@@ -1,8 +1,10 @@
 var express = require('express');
+var util = require("util")
 var router = express.Router();
-// validate the permalink
-router.post('/api/newAlert', function(req, res){
-    res.status(200).json({message: req});
+// alert test
+router.post('/testAlert', function(req, res){
+		console.log(util.inspect(req,{depth:null}));
+    res.end();
     return;
 });
 

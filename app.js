@@ -11,6 +11,7 @@ var common = require('./data/common');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var alertIndex = require('./routes/alert.js');
+var apiIndex = require('./routes/api.js');
 var metricIndex = require('./routes/metric.js');
 var wx=require('./routes/wx')
 
@@ -53,6 +54,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/users', users);
 app.use('/alert', alertIndex);
+app.use('/api',apiIndex);
 app.use('/metric', metricIndex);
 app.use('/wx',wx);
 
