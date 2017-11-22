@@ -17,4 +17,14 @@ router.get('/test', function(req, res){
 	console.log(util.inspect(req.query,{depth:null}));
   res.send(util.inspect(req.query,{depth:null}));
 });
+router.get('/',function(req,res){
+		var db = req.app.db;
+		db.alerts.find({},function(err,docs){
+				// var retRes=[];
+			 //  for(var i in docs){
+			 //  		retRes.push(docs[i]);
+	   //    }
+	      res.send(util.inspect(docs,{depth:null}));
+		})
+});
 module.exports = router;
