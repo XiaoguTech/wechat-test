@@ -60,6 +60,26 @@
     .secondary.pointing.menu .toc.item {
       display: none;
     }
+    @media screen and (max-width:350px){
+      .username{
+        max-width: 130px;
+      }
+    }
+    @media (min-width:350px) and (max-width:500px){
+      .username{
+        max-width: 190px;
+      }
+    }
+    @media (min-width:500px) and (max-width:700px){
+      .username{
+        max-width: 250px;
+      }
+    }
+    @media screen and (min-width:700px){
+      .username{
+        max-width: 400px;
+      }
+    }
 
     @media only screen and (max-width: 700px) {
       .ui.fixed.menu {
@@ -88,6 +108,9 @@
 			font-size: 1.4em;
 			margin-right: 0.3em;
 			font-weight: bold;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
 		}
 		.username:hover{
 			color:#eeeeee;
@@ -129,7 +152,7 @@
       	{{#if normalMenu}}
           <div class="ui simple dropdown item">
             监控 <i class="dropdown icon"></i>
-            <div class="menu">
+            <div class="menu" >
               {{#each normalMenu}}
                 <a class="item" href="/metric/monitor/{{this.category_id}}">{{this.category_name}}</a>
               {{/each}}
