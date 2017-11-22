@@ -32,10 +32,11 @@ router.post('/test', function(req, res){
 	var db = req.app.db.alerts;
 	if(db == false){
 		res.end();
+		return ;
 	}
 	common.dbQuery(db,{"orgID":alertQuery.orgID},null,null,(err, org)=>{
 		if(org == false){
-			console.log("没找到,插入一条");
+			console.log("在数据库中没找到对应的orgID,插入一条orgID及其alertIDArray");
 			// define a record
 			var orgObj = {};
 			orgObj.orgID = alertQuery.orgID;
@@ -55,61 +56,69 @@ router.post('/test', function(req, res){
 			// insert a record
 			db.insert((orgObj), (err, ret) => {});
 			res.send(util.inspect(orgObj,{depth:null}));
+			return ;
 		}else{
-			console.log("找到组织");
-			var sameFlag = false;//判断是否有相同规则
-			var changeFlag =false;//判断是否对org[0]做修改
-			for(var i in org[0].alertIDArray){
-				var IdObj = org[0].alertIDArray[i];
-				// 具有相同规则的alert,只需要push alertArray
-				if(IdObj.alertID == alertQuery.alertID){
-					// console.log("找到相同alertID");
-					// 处理报警内容中的时间是否相同
-					if(IdObj.alertArray[i].time == alertQuery.time){
-						console.log("时间相同不更新");
-						sameFlag = true;
-						break;
-					}
-					// 针对大于100的情况进行处理
-					if(IdObj.alertArray.length >100){
-						console.log("alertID数组大于100");
-					}
-					// 插入记录，更新临时记录org
-					console.log("alertID数组插入一条数据");
-					var newObj = {};
-					newObj.time = alertQuery.time;
-					newObj.isRead = alertQuery.isRead;
-					newObj.message = alertQuery.message;
-					newObj.value = alertQuery.value;
-					org[0].alertIDArray[i].alertArray.push(newObj);
-					sameFlag = true;
-					changeFlag = true;
-					break;
-				}
-			}
-			// 该组织下没有这个报警规则，插入新的报警规则及其内容
-			if(sameFlag == false){
-				// 没有报警
-				console.log("新增报警规则");
+			console.log("找到对应的orgID");
+			var changeFlag = false;
+			var alertIDArray = org[0].alertIDArray;
+			var alertIDArrayIndex = alertIDArray.findIndex(function(element){
+				return element.alertID === alertQuery.alertID;
+			});
+			if(alertIDArrayIndex === -1){
+				console.log("没有找到对应的alertID规则,新增报警规则");
 				var newAlertIdobj = {};
 				newAlertIdobj.alertID = alertQuery.alertID;
-				var newObjArray=[],newObj = {};
+				// add new alertobj array
+				var newObjArray=[];
+				var newObj = {};
 				newObj.time = alertQuery.time;
 				newObj.isRead = alertQuery.isRead;
 				newObj.message = alertQuery.message;
 				newObj.value = alertQuery.value;
 				newObjArray.push(newObj);
 				newAlertIdobj.alertArray = newObjArray;
+				// make change in org[0] record
 				org[0].alertIDArray.push(newAlertIdobj);
+				// sort rule list using alertID
+				org[0].alertIDArray.sort(function(a,b){
+					var aAlert = a.alertID.toUpperCase();
+					var bAlert = b.alertID.toUpperCase();
+					return aAlert<bAlert?-1:1;
+				});
 				changeFlag = true;
+			}else{
+				console.log("找到对应的alertID规则");
+				var alertArray = alertIDArray[alertIDArrayIndex].alertArray;
+				var alertArrayIndex = alertArray.findIndex(function(element){
+					return element.time === alertQuery.time;
+				});
+				if(alertArrayIndex === -1){
+					console.log("没有找到相同时间的报警序列");
+					if(alertArray.length>=100){
+						org[0].alertIDArray[i].alertArray.pop();
+					}
+					var newObj = {};
+					newObj.time = alertQuery.time;
+					newObj.isRead = alertQuery.isRead;
+					newObj.message = alertQuery.message;
+					newObj.value = alertQuery.value;
+					org[0].alertIDArray[alertIDArrayIndex].alertArray.unshift(newObj);
+					// org[0].alertIDArray[i].alertArray.sort(function(a,b){
+					// 	return a.time<b.time?1:-1;
+					// });
+					changeFlag = true;
+				}else{
+					console.log("找到相同的时间的报警序列");
+					changeFlag =false;
+				}
 			}
-			// 直接修改org，最终根据orgID查询到对应记录，更新数据库
-			if(changeFlag == true){
+			if (changeFlag === true) {
 				db.remove({"orgID":alertQuery.orgID}, {}, function (err, numRemoved) {});
 				db.insert((org[0]), (err, ret) => {});
 			}
-			res.send(util.inspect(org[0],{depth:null}));
 		}
+		res.send(util.inspect(org[0],{depth:null}));
+		return ;
 	});
 });
 
