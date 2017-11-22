@@ -81,9 +81,7 @@ var db = new Nedb();
 db = {};
 db.users = new Nedb({filename: path.join(__dirname, '/data/users.db'), autoload: true});
 db.categorys = new Nedb({filename: path.join(__dirname, '/data/categorys.db'), autoload: true});
-// add db to app for routes
+db.alerts = new Nedb({filename: path.join(__dirname, '/data/alerts.db'), autoload: true});
 app.db = db;
-
-
 
 module.exports = app;
