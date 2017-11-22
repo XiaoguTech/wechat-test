@@ -6,34 +6,25 @@ var router = express.Router();
 var common = require('../data/common');
 
 	// 读取json文件
-var dataFile = path.join(__dirname, '..', 'data', 'url.json');
-var rawData = fs.readFileSync(dataFile, 'utf8');
-var loadedURL = JSON.parse(rawData);
-
 
 /* GET metric page. */
 router.get('/', function(req, res) {
   var db = req.app.db;
-  // res.send(util.inspect(db.categorys,{depth:null}));
   if(req.session.user ==null){
     res.redirect('/login');
   }
   else{
     db.categorys.find({}, function (err, docs) {
-      // res.send(docs);
       var loadedURL={};
       loadedURL.metric=[];
       loadedURL.normalMenu=[];
+      loadedURL.metric.push.apply(loadedURL.metric,docs[0].metric);
       for(var i in docs){
-        // loadedURL.metric.push(docs[i].metric);
-        loadedURL.metric.push.apply(loadedURL.metric,docs[i].metric);
-        // console.log(docs[i].metric);
         var obj={};
         obj.category_name=docs[i].category_name;
         obj.category_id=docs[i].category_id;
         loadedURL.normalMenu.push(obj);
       }
-      // res.send(loadedURL.metric);
       res.render('metric', {
         title: '监控显示',
         result: loadedURL.metric,
@@ -55,10 +46,12 @@ router.get('/monitor/:id', function(req, res) {
         loadedURL.metric=[];
         loadedURL.normalMenu=[];
         loadedURL.metric.push.apply(loadedURL.metric,docs[categoryId].metric);
-        var obj={};
-        obj.category_name=docs[categoryId].category_name;
-        obj.category_id=docs[categoryId].category_id;
-        loadedURL.normalMenu.push(obj);
+        for(var i in docs){
+          var obj={};
+          obj.category_name=docs[i].category_name;
+          obj.category_id=docs[i].category_id;
+          loadedURL.normalMenu.push(obj);
+        }
         res.render('metric', {
           title: obj.category_name+'显示',
           result: loadedURL.metric,
