@@ -11,71 +11,71 @@ router.get('/', function(req, res, next) {
     db.alerts.find({"orgID":orgID},function(err,data){
       if(data.length){
         var jsonObj=data[0];
-        var alertIDArray=jsonObj["alertIDArray"];
-        for(var obj in alertIDArray){
-          var count=0;
-          for(var item in alertIDArray[obj].alertArray){
-            if(alertIDArray[obj].alertArray[item].isRead==false){
-              count++;
-            }
-          }
-          alertIDArray[obj].notreadLength=count;
-          alertIDArray[obj].ReadLength=alertIDArray[obj].alertArray.length-count;
+        var alertArray=jsonObj["alertArray"];
+        var latestTime=alertArray[0].time;
+        var latestMessage=alertArray[0].message;
+        for(var obj in alertArray){
+          var time=new Date(alertArray[obj].time);
+          var showTime=time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds();
+          alertArray[obj].time=showTime;
         }
       }
-      res.render('alert', { title: '报警信息',user: req.session.user,alertIDArray:alertIDArray});
+      var formatTime=alertArray[0].time;
+      res.render('alert', { title: '报警信息',user: req.session.user,alertArray:alertArray,latestTime:latestTime,latestMessage:latestMessage,formatTime:formatTime});
 
     });    
   }else{
     res.redirect('/login');     
   }
 });
+
+router.get('/refresh',function(req,res){
+  var orgID=req.session.user;
+  var db = req.app.db;  
+  db.alerts.find({"orgID":orgID},function(err,data){
+    if(data.length){
+      var jsonObj=data[0];
+      var alertArray=jsonObj["alertArray"];
+      var latestTime=alertArray[0].time;
+      var latestMessage=alertArray[0].message;
+      for(var obj in alertArray){
+        var time=new Date(alertArray[obj].time);
+        var showTime=time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds();
+        alertArray[obj].time=showTime;
+      }
+    }
+    var formatTime=alertArray[0].time;
+    res.send(alertArray);
+  });    
+
+});
 /*
-只有数据库中有当前orgID的数据时才能进行操作
+return size from timestamp:intenger
  */
-router.get('/setstate',function(req,res){
-  var timeStamp = req.query.timestamp;
-  var alertId = req.query.alertid;
-  var isRead = req.query.isread;
+router.get('/getNewNum',function(req,res){
+  var dTimeStamp = req.query.timestamp;
+  var sOrgID = req.session.user;
   var db = req.app.db.alerts;
-  var orgId = req.session.user;
-  // 通过user即orgID找到数据库中的对应内容,目前先修改result内容，然后最终将result写入数据库中
-  db.findOne({"orgID":orgId},function(err,result){
+  db.findOne({"orgID":sOrgID},function(err,result){
     if(result == null){
-      // 没有找到
+      // not found orgID
       return res.status(200).json({
-        message:"not found orgID",
-        orgID:orgId
+        message:"not found your orgID",
+        orgID:sOrgID
       });
     }else{
-      // 找到
-      var alertIDArray = result.alertIDArray;
-      var alertIDArrayIndex = alertIDArray.findIndex(function(element){
-        return element.alertID === alertId;
+      // found
+      var aAlert = result.alertArray;
+      var iAlertIndex = aAlert.findIndex(function(element){
+        return element.time <= dTimeStamp;
       });
-      if(alertIDArrayIndex === -1){
-        // 没有找到
-        return res.status(200).json({message:"没有找到"});
-      }else{
-        // 找到
-        var alertArray = alertIDArray[alertIDArrayIndex].alertArray;
-        var alertArrayIndex = alertArray.findIndex(function(element){
-          return element.time <= timeStamp;
+      // not found 
+      if(iAlertIndex === -1){
+        return res.status(200).json({
+          message:"not found newer than your time stamp"
         });
-        if (alertArrayIndex === -1){
-          // 没找到
-          return res.status(200).json({message:"没找到timestamp时间之前的警报"});
-        }else{
-          // 找到，将alertArrayIndex开始到alertArray.length的元素的isRead置为0
-          for(var i = alertArrayIndex;i<alertArray.length;++i){
-            result.alertIDArray[alertIDArrayIndex].alertArray[i].isRead = isRead;
-          }
-          db.remove({"orgID":orgId}, {}, function (err, numRemoved) {
-          });
-          db.insert(result, (err, ret) => {
-          });
-          res.status(200).json(result);
-        }
+      }else{
+        return res.status(200).json({iNewNum:iAlertIndex});
       }
     }
   });

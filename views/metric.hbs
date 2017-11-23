@@ -54,12 +54,12 @@ body.pushable>.pusher{
 </style>
 {{!-- 展示默认图表以及result中的对应图表 --}}
 {{#if result}}
-  <div class="ui main container">
+<div class="ui main container">
     {{#each result}}
       <h1 class="ui header"><a href="{{this.url}}" target="_blank" class="graph_url">{{this.name}}</a></h1>
       <iframe src={{this.url}} width="100%" class="sub_frame"></iframe>
     {{/each}}
-  </div>
+</div>
 {{/if}}
 
 

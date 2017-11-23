@@ -5,7 +5,6 @@ var util = require("util")
 var router = express.Router();
 var common = require('../data/common');
 
-
 // get all alert info 
 router.get('/',function(req,res){
 	var db = req.app.db;
@@ -13,113 +12,104 @@ router.get('/',function(req,res){
 	  res.send(util.inspect(docs,{depth:null}));
 	})
 });
-
-
 // alert test post req.body
 router.post('/test', function(req, res){
 	var alertContents = req.body.series;
 	// get an alert info,including: orgId,alertId,time,isRead,message,value
 	var alertQuery = {};
 	for(var i in alertContents){
-		alertQuery.orgID = alertContents[i].tags.metric;
-		alertQuery.alertID = alertContents[i].tags.alertID;
+		alertQuery.orgID = alertContents[i].name;
 		alertQuery.time = alertContents[i].values[0][0];
-		alertQuery.isRead = false;
+		alertQuery.alertID = alertContents[i].tags.alertID;
 		alertQuery.message = alertContents[i].values[0][2];
 		alertQuery.value   = alertContents[i].values[0][3];
+		break;
 	}
 	// db manupulation: alerts
 	var db = req.app.db.alerts;
+	// if db is null ,return status 200 and send message
 	if(db == false){
-		res.end();
+		res.status(200).json({message:"db is null"});
 		return ;
 	}
-	common.dbQuery(db,{"orgID":alertQuery.orgID},null,null,(err, org)=>{
-		if(org == false){
-			console.log("在数据库中没找到对应的orgID,插入一条orgID及其alertIDArray");
-			// define a record
-			var orgObj = {};
-			orgObj.orgID = alertQuery.orgID;
-			var orgObjAlertIDArray = [],
-			orgObjAlertIDArrayObj = {},
-			orgObjAlertIDArrayObjArray = [],
-			orgObjAlertIDArrayObjArrayObj = {};
-			orgObjAlertIDArrayObj.alertID = alertQuery.alertID;
-			orgObjAlertIDArrayObjArrayObj.time = alertQuery.time;
-			orgObjAlertIDArrayObjArrayObj.isRead = alertQuery.isRead;
-			orgObjAlertIDArrayObjArrayObj.message = alertQuery.message;
-			orgObjAlertIDArrayObjArrayObj.value   = alertQuery.value;
-			orgObjAlertIDArrayObjArray.push(orgObjAlertIDArrayObjArrayObj);
-			orgObjAlertIDArrayObj.alertArray = orgObjAlertIDArrayObjArray;
-			orgObjAlertIDArray.push(orgObjAlertIDArrayObj);
-			orgObj.alertIDArray = orgObjAlertIDArray;
-			// insert a record
-			db.insert((orgObj), (err, ret) => {});
-			res.send(util.inspect(orgObj,{depth:null}));
-			return ;
+	// using orgID searching through database
+	db.findOne({"orgID":alertQuery.orgID},function(err,result){
+		// not finding the orgID in database
+		if(result == null){
+			var aAlert = [];
+			var oAlert = {
+				time:alertQuery.time,
+				alertID:alertQuery.alertID,
+				message:alertQuery.message,
+				value:alertQuery.value
+			};
+			aAlert.push(oAlert);
+			var oOrg = {
+				orgID:alertQuery.orgID,
+				alertArray:aAlert
+			};
+			db.insert((oOrg), (err, ret) => {});
+			res.status(200).json(oOrg);
+			return;
 		}else{
-			console.log("找到对应的orgID");
-			var changeFlag = false;
-			var alertIDArray = org[0].alertIDArray;
-			var alertIDArrayIndex = alertIDArray.findIndex(function(element){
-				return element.alertID === alertQuery.alertID;
-			});
-			if(alertIDArrayIndex === -1){
-				console.log("没有找到对应的alertID规则,新增报警规则");
-				var newAlertIdobj = {};
-				newAlertIdobj.alertID = alertQuery.alertID;
-				// add new alertobj array
-				var newObjArray=[];
-				var newObj = {};
-				newObj.time = alertQuery.time;
-				newObj.isRead = alertQuery.isRead;
-				newObj.message = alertQuery.message;
-				newObj.value = alertQuery.value;
-				newObjArray.push(newObj);
-				newAlertIdobj.alertArray = newObjArray;
-				// make change in org[0] record
-				org[0].alertIDArray.push(newAlertIdobj);
-				// sort rule list using alertID
-				org[0].alertIDArray.sort(function(a,b){
-					var aAlert = a.alertID.toUpperCase();
-					var bAlert = b.alertID.toUpperCase();
-					return aAlert<bAlert?-1:1;
-				});
-				changeFlag = true;
-			}else{
-				console.log("找到对应的alertID规则");
-				var alertArray = alertIDArray[alertIDArrayIndex].alertArray;
-				var alertArrayIndex = alertArray.findIndex(function(element){
-					return element.time === alertQuery.time;
-				});
-				if(alertArrayIndex === -1){
-					console.log("没有找到相同时间的报警序列");
-					if(alertArray.length>=100){
-						org[0].alertIDArray[i].alertArray.pop();
-					}
-					var newObj = {};
-					newObj.time = alertQuery.time;
-					newObj.isRead = alertQuery.isRead;
-					newObj.message = alertQuery.message;
-					newObj.value = alertQuery.value;
-					org[0].alertIDArray[alertIDArrayIndex].alertArray.unshift(newObj);
-					// org[0].alertIDArray[i].alertArray.sort(function(a,b){
-					// 	return a.time<b.time?1:-1;
-					// });
-					changeFlag = true;
-				}else{
-					console.log("找到相同的时间的报警序列");
-					changeFlag =false;
-				}
+		// finding the result in the database
+			var bChange = false;
+			var aAlert = result.alertArray;
+			if(aAlert.length>=100){
+				aAlert.pop();
 			}
-			if (changeFlag === true) {
+			var iAlertIndex = aAlert.findIndex(function(element){
+				return element.time === alertQuery.time;
+			});
+			// not finding the same time
+			if(iAlertIndex === -1){
+				var oAlert={
+					time:alertQuery.time,
+					alertID:alertQuery.alertID,
+					message:alertQuery.message,
+					value:alertQuery.value
+				};
+				result.alertArray.unshift(oAlert);
+				bChange = true;
+			}else if(iAlertIndex >= 0){
+			// find the same time
+				var oAlert={
+					time:alertQuery.time,
+					alertID:alertQuery.alertID,
+					message:alertQuery.message,
+					value:alertQuery.value
+				};
+				bChange = true;
+				result.alertArray.unshift(oAlert);
+			}
+			// sort the data and flush data into the database
+			if(bChange === true){
+				// sort the alert array
+				result.alertArray.sort(function(a,b){
+					if(a.time > b.time){
+						return -1;
+					}else if(a.time < b.time){
+						return 1;
+					}else if(a.time === b.time){
+						var aAlert_ = a.alertID.toUpperCase();
+						var bAlert_ = b.alertID.toUpperCase();
+						return aAlert_<bAlert_?-1:1;
+					}
+				});
 				db.remove({"orgID":alertQuery.orgID}, {}, function (err, numRemoved) {});
-				db.insert((org[0]), (err, ret) => {});
+				db.insert(result, (err, ret) => {});
+				return res.status(200).json({
+					message:"flush into database"
+				});
+			}else{
+				// nothing change log
+				return res.status(200).json({
+					message:"nothing change"
+				});
 			}
 		}
-		res.send(util.inspect(org[0],{depth:null}));
-		return ;
 	});
+	return;
 });
 
 // alert test get req.query

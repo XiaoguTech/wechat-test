@@ -6,7 +6,7 @@
 #alert_container{
     {{!-- background: #252222; --}}
 }
-.ui.circular.label{
+.ui.label{
     float: right;
 }
 </style>
@@ -18,71 +18,40 @@
             </div>
         </div>
         <div class="row">
-            <div class="ui styled fluid accordion">
-                {{#if alertIDArray}}
-                    {{#each alertIDArray}}
-                        <div class="title row">
-                            <i class="dropdown icon"></i>
-                            {{this.alertID}}
-                            {{#if this.notreadLength}}
-                                <label class="ui red circular label">{{this.notreadLength}}</label>                            
-                            {{/if}}
-                        </div>	
-                                             
-                        <div class="content">
-                            <div class="accordion">
-                                {{#if this.notreadLength}}
-                                    <div class="title">
-                                        <i class="dropdown icon"></i> 未读
-                                        {{#if this.notreadLength}}
-                                            <label class="ui red circular label">{{this.notreadLength}}</label>                            
-                                        {{/if}}
-                                    </div>
-                                    <div class="content">
-                                        <table class="ui selectable celled table">
-                                            <tbody>
-                                                {{#each this.alertArray}}
-                                                    {{#if this.isRead}}
-                                                    {{else}}
-                                                        <tr>
-                                                            <td>{{this.time}}</td>
-                                                            <td>{{this.message}}</td>
-                                                            <td>{{this.value}}</td>                       
-                                                        </tr>
-                                                    {{/if}}
-                                                {{/each}}                                            
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {{/if}}
-
-                                {{#if this.ReadLength}}
-                                    <div class="title">
-                                        <i class="dropdown icon"></i> 已读 
-                                        {{#if this.ReadLength}}
-                                            <label class="ui grey circular label">{{this.ReadLength}}</label>    
-                                        {{/if}}
-                                    </div>
-                                    <div class="content">
-                                        <table class="ui selectable celled table">
-                                            <tbody>
-                                                {{#each this.alertArray}}
-                                                    {{#if this.isRead}}
-                                                        <tr>
-                                                            <td>{{this.time}}</td>
-                                                            <td>{{this.message}}</td>
-                                                            <td>{{this.value}}</td>                         
-                                                        </tr>
-                                                    {{/if}}
-                                                {{/each}}                                            
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                {{/if}}
-                            </div>
-                        </div>
-                    {{/each}}
-                {{/if}}         
+            <div class="sixteen wide column">
+                <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?refresh=5s&panelId=7&orgId=1&tab=metrics&theme=light" width="100%" style="border:none;"></iframe>
+            </div>
+        </div>
+        <div class="row">
+            <div class="sixteen wide column">
+                <div class="ui inverted dimmer">
+                    <div class="ui text loader">加载中，请稍后</div>
+                </div>
+                <div class="ui styled fluid accordion">
+                    <div class="title row active">
+                        <i class="dropdown icon"></i>
+                        {{this.latestMessage}}
+                        <label class="ui grey label"><span class="date">{{this.formatTime}}</span></label>                            
+                    </div>	
+                                            
+                    <div class="content active">
+                        <table class="ui selectable celled table" id="alertList">
+                            <tbody>
+                                {{#each this.alertArray}}
+                                    {{#if this.isRead}}
+                                    {{else}}
+                                        <tr>
+                                            <td>{{this.alertID}}</td>
+                                            <td>{{this.time}}</td>
+                                            <td>{{this.message}}</td>
+                                            <td>{{this.value}}</td>                       
+                                        </tr>
+                                    {{/if}}
+                                {{/each}}                                            
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -90,10 +59,14 @@
 <script>
 $('.ui.dropdown').dropdown();
 $('.ui.accordion').accordion();
-$('.accordion .row').click(function(){
-    var row = $(this).index();
-    console.log("click");
-    console.log(row);
-    {{!-- $('.accordion').children().eq(row).children().eq(0).remove(); --}}
-});
+{{!-- $(function(){
+    $.ajax({
+        url:window.location.href+"/update",
+        success:function(){
+
+        }
+    });
+        
+    $('.dimmer').removeClass('active');
+}); --}}
 </script>
