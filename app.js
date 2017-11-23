@@ -34,8 +34,8 @@ app.use(session({
 
 app.use(function (req, res, next) {
   if (!req.session.user) {
-    // req.session.user = null;
-    req.session.user = "test";
+    req.session.user = null;
+    // req.session.user = "test";
     req.session.openid=null;
     req.session.orgId=null;
   } 
