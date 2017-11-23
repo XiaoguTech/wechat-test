@@ -64,10 +64,12 @@ router.get('/setstate',function(req,res){
         }else{
           // 找到，将alertArrayIndex开始到alertArray.length的元素的isRead置为0
           for(var i = alertArrayIndex;i<alertArray.length;++i){
-            result.alertIDArray[alertIDArrayIndex].alertArray[i].isRead = true;
+            result.alertIDArray[alertIDArrayIndex].alertArray[i].isRead = isRead;
           }
-          db.remove({"orgID":alertId}, {}, function (err, numRemoved) {});
-          db.insert((result), (err, ret) => {});
+          db.remove({"orgID":orgId}, {}, function (err, numRemoved) {
+          });
+          db.insert(result, (err, ret) => {
+          });
           res.status(200).json(result);
         }
       }
