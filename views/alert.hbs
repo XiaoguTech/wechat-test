@@ -9,6 +9,24 @@
 .ui.label{
     float: right;
 }
+.ui.empty.circular.label{
+    float: none;
+}
+.ui.celled.table tr td,.ui.table{
+    border: none;
+}
+iframe{
+    border: none;
+    border-radius: .28571429rem;
+    background: #fff;
+    box-shadow: 0 1px 2px 0 rgba(34,36,38,.15), 0 0 0 1px rgba(34,36,38,.15);
+}
+.ui.horizontal.statistics .statistic{
+    margin: 0;
+}
+.ui.basic.button{
+    margin-left:1.5em;
+}
 </style>
 <div class="ui vertical stripe segment" id="alert_container">
     <div class="ui middle aligned stackable grid container">
@@ -19,13 +37,13 @@
         </div>
         <div class="row">
             <div class="sixteen wide column">
-                <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?refresh=5s&panelId=7&orgId=1&tab=metrics&theme=light" width="100%" style="border:none;"></iframe>
+                <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?refresh=10s&panelId=7&orgId=1&tab=metrics&theme=light" width="100%" style="border:none;"></iframe>
             </div>
         </div>
         <div class="row">
-            <div class="sixteen wide column">
-                <div class="ui inverted dimmer">
-                    <div class="ui text loader">加载中，请稍后</div>
+            <div class="ten wide column">
+                <div class="ui active nverted dimmer">
+                    <div class="ui text loader">刷新中，请稍后</div>
                 </div>
                 <div class="ui styled fluid accordion">
                     <div class="title row active">
@@ -35,38 +53,66 @@
                     </div>	
                                             
                     <div class="content active">
+                        <div class="ui horizontal mini statistics">
+                            <div class="red statistic">
+                                <div class="value">
+                                22
+                                </div>
+                                <div class="label">新消息</div>
+                                <button class="ui basic icon button" id="refreshButton">
+                                    <i class="refresh blue icon"></i>
+                                </button>
+                            </div>
+                        </div>
                         <table class="ui selectable celled table" id="alertList">
                             <tbody>
-                                {{#each this.alertArray}}
-                                    {{#if this.isRead}}
-                                    {{else}}
-                                        <tr>
-                                            <td>{{this.alertID}}</td>
-                                            <td>{{this.time}}</td>
-                                            <td>{{this.message}}</td>
-                                            <td>{{this.value}}</td>                       
-                                        </tr>
-                                    {{/if}}
-                                {{/each}}                                            
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
+            <div class="four wide right floated column">
+            </div>
         </div>
     </div>
 </div>
 <script>
+function updateTable(data){
+    $("#alertList").html("");
+    var tbody=$("<tbody></tbody>");      
+    for(var obj in data){
+        var tr=$("<tr></tr>");
+        tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
+        tr.append($("<td></td>").append(data[obj].alertID));
+        tr.append($("<td></td>").append(data[obj].time));
+        tr.append($("<td></td>").append(data[obj].message));
+        tr.append($("<td></td>").append(data[obj].value)); 
+        tbody.append(tr);
+    }
+    $("#alertList").append(tbody); 
+}
 $('.ui.dropdown').dropdown();
 $('.ui.accordion').accordion();
-{{!-- $(function(){
+$('#refreshButton').click(function(){
+    $('.dimmer').addClass('active');
     $.ajax({
-        url:window.location.href+"/update",
-        success:function(){
-
+        url:window.location.href+"/refresh",
+        success:function(data){
+            updateTable(data);
+            console.log("update");
         }
     });
-        
-    $('.dimmer').removeClass('active');
-}); --}}
+    setTimeout(function(){$('.dimmer').removeClass('active');},1200);
+
+});
+$(function(){
+    $.ajax({
+        url:window.location.href+"/refresh",
+        success:function(data){
+            updateTable(data);
+        }
+    });
+    setTimeout(function(){$('.dimmer').removeClass('active');},1200)
+});
+
 </script>
