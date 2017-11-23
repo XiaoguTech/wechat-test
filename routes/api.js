@@ -5,13 +5,15 @@ var util = require("util")
 var router = express.Router();
 var common = require('../data/common');
 
-// get all alert info 
+// get all alert info from db
 router.get('/',function(req,res){
 	var db = req.app.db;
 	db.alerts.find({},function(err,docs){
 	  res.send(util.inspect(docs,{depth:null}));
 	})
 });
+
+
 // alert test post req.body
 router.post('/test', function(req, res){
 	var alertContents = req.body.series;
@@ -119,5 +121,98 @@ router.get('/test', function(req, res){
 	console.log(util.inspect(req.query,{depth:null}));
 	res.send(util.inspect(req.query,{depth:null}));
 });
+
+
+// get all alert info from db
+router.get('/alertdb',function(req,res){
+	var db = req.app.db;
+	db.alerts.find({},function(err,docs){
+	  res.send(util.inspect(docs,{depth:null}));
+	})
+});
+
+
+// insert alert solution: {corresponding alert panel and alert kb passage}
+router.post('/solution', function(req,res){
+	var oSolution = req.body.solution;
+	var db = req.app.db.solutions;
+	if(db == null){
+		return res.status(200).json({messgae:"database is empty"});
+	}else{
+		db.findOne({"orgID":oSolution.orgID},function(err,result){
+			if(result == null){
+				db.insert(oSolution,(err,ret)=>{});
+				return res.status(200).json({
+					message:"inserted,but not found your orgID in the solution list",
+					orgID:oSolution.orgID
+				});
+			}else{
+				var bChange = false;
+				var aAlert = result.alertArray;
+				var iAlertIndex = aAlert.findIndex((element)=>{
+					return element.alertID === oSolution.alertArray[0].alertID;
+				});
+				if(iAlertIndex === -1){
+					result.alertArray.push(oSolution.alertArray[0]);
+					bChange = true;
+				}else{
+					result.alertArray.remove(iAlertIndex);
+					result.alertArray.push(oSolution.alertArray[0]);
+					bChange = true;
+				}
+				if(bChange === true){
+					db.remove({"orgID":oSolution.orgID}, {}, function (err, numRemoved) {});
+					db.insert(result, (err, ret) => {});
+					return res.status(200).json({message:"flush into database"});
+				}
+			}
+		});
+	}
+	return ;
+});
+
+// req.query
+// /api/solution?alertID=xxx
+// return obj = {alertID:xxx,openKBURL:xxx,alertPanelURL:xxx}
+router.get('/solution',function(req,res){
+	var sAlertID = req.query.alertID;
+	var sOrgID = req.session.user;
+	var db = req.app.db.solutions;
+	if(db == null){
+		return res.status(200).json({messgae:"database is empty"});
+	}else{
+		db.findOne({"orgID":sOrgID},function(err,result){
+			if(result == null){
+				return res.status(200).json({
+					message:"not found your orgID in the solution list",
+					orgID:sOrgID
+				});
+			}else{
+				var aArray = result.alertArray;
+				var iAlertIndex = aArray.findIndex(function(element){
+					return element.alertID === sAlertID;
+				});
+				if(iAlertIndex === -1){
+					return res.status(200).json({
+						message:"not found your alertID in the solution list",
+						alertID:sAlertID
+					});
+				}else{
+					return res.status(200).json(aArray[iAlertIndex]);
+				}
+			}
+		});
+	}
+	return ;
+});
+
+// get all solution info from db
+router.get('/solutiondb',function(req,res){
+	var db = req.app.db;
+	db.solutions.find({},function(err,docs){
+	  res.send(util.inspect(docs,{depth:null}));
+	})
+});
+
 
 module.exports = router;

@@ -34,8 +34,8 @@ app.use(session({
 
 app.use(function (req, res, next) {
   if (!req.session.user) {
-    req.session.user = null;
-    // req.session.user = "test";
+    // req.session.user = null;
+    req.session.user = "test";
     req.session.openid=null;
     req.session.orgId=null;
   } 
@@ -85,6 +85,7 @@ db = {};
 db.users = new Nedb({filename: path.join(__dirname, '/data/users.db'), autoload: true});
 db.categorys = new Nedb({filename: path.join(__dirname, '/data/categorys.db'), autoload: true});
 db.alerts = new Nedb({filename: path.join(__dirname, '/data/alerts.db'), autoload: true});
+db.solutions = new Nedb({filename: path.join(__dirname, '/data/solutions.db'), autoload: true});
 app.db = db;
 
 module.exports = app;
