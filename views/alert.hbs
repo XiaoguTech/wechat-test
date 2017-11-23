@@ -1,0 +1,65 @@
+
+<style>
+.ui.vertical.stripe{
+    padding:5em 0 3em;
+}
+#alert_container{
+    {{!-- background: #252222; --}}
+}
+</style>
+<div class="ui vertical stripe segment" id="alert_container">
+    <div class="ui middle aligned stackable grid container">
+        <div class="row">
+            <div class="four wide column">
+                {{#if alertIDArray}}
+                    <div class="ui vertical menu" id="ruleMenu">
+                        {{#each alertIDArray}}
+                            <a class="item">
+                                {{this.alertID}}
+                                <label class="ui red circular label">{{this.length}}</label>
+                            </a>	
+                        {{/each}}
+                    </div>
+                {{/if}}
+
+            </div>
+            <div class="eleven wide right floated column">    
+                {{#if alertIDArray}} 
+                    {{#each alertIDArray}}
+                        <table class="ui selectable celled table">
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>信息</th>
+                                    <th>值</th>
+                                    <th>未读</th>                            
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#each this.alertArray}}
+                                    <tr>
+                                        <td>{{this.time}}</td>
+                                        <td>{{this.message}}</td>
+                                        <td>{{this.value}}</td>
+                                        <td>
+                                            {{#if this.isRead}}
+                                                <label class="ui grey circular label"></label>                                            
+                                            {{else}}
+                                                <label class="ui red circular label"></label>
+                                            {{/if}}
+                                        </td>                            
+                                    </tr>
+                                {{/each}}
+                            </tbody>
+                        </table>
+                    {{/each}}
+                {{/if}}
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$('.ui.dropdown').dropdown();
+</script>

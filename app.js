@@ -13,6 +13,7 @@ var users = require('./routes/users');
 var alertIndex = require('./routes/alert.js');
 var metricIndex = require('./routes/metric.js');
 var wx=require('./routes/wx')
+var apiIndex = require('./routes/api.js');
 
 var app = express();
 
@@ -27,7 +28,7 @@ app.use(session({
   saveUninitialized:true,
   store:new filestore(),
   cookie:{
-    maxAge:1000*60*60 
+    maxAge:3600*1000*24 
   }
 }));
 
@@ -56,6 +57,8 @@ app.use('/users', users);
 app.use('/alert', alertIndex);
 app.use('/metric', metricIndex);
 app.use('/wx',wx);
+app.use('/api',apiIndex);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -80,9 +83,7 @@ var db = new Nedb();
 db = {};
 db.users = new Nedb({filename: path.join(__dirname, '/data/users.db'), autoload: true});
 db.categorys = new Nedb({filename: path.join(__dirname, '/data/categorys.db'), autoload: true});
-// add db to app for routes
+db.alerts = new Nedb({filename: path.join(__dirname, '/data/alerts.db'), autoload: true});
 app.db = db;
-
-
 
 module.exports = app;
