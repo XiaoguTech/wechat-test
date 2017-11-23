@@ -14,22 +14,6 @@
     <!-- Sidebar Menu -->
     <div class="ui vertical inverted sidebar menu">
       <a class="active item" href="/">首页</a>
-
-      {{!-- {{#if alertMenu}}
-        <div class="item">
-          <div class="header">
-            报警
-          </div>
-          <div class="menu">
-              {{#each alertMenu}}
-                <a class="item" href="/metric/alert/{{this.category}}">{{this.name}}</a>
-              {{/each}}
-          </div>
-        </div>
-      {{else}}
-        <a class="item" href="/metric/alert">报警</a>
-			{{/if}} --}}
-
       {{#if user}}
       	{{#if normalMenu}}
 				<div class="item">
@@ -46,7 +30,7 @@
 					<a class="item" href="/metric">监控</a>
 			{{/if}}
 
-			<a class="item" herf="/alert">报警</a>
+        <a class="item" href="/alert">报警</a>
         <a class="item" href="/logout">注销</a>
       {{else}}
         <a class="item" href="/login">登录</a>
