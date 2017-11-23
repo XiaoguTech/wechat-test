@@ -6,60 +6,94 @@
 #alert_container{
     {{!-- background: #252222; --}}
 }
+.ui.circular.label{
+    float: right;
+}
 </style>
 <div class="ui vertical stripe segment" id="alert_container">
     <div class="ui middle aligned stackable grid container">
         <div class="row">
-            <div class="four wide column">
-                {{#if alertIDArray}}
-                    <div class="ui vertical menu" id="ruleMenu">
-                        {{#each alertIDArray}}
-                            <a class="item">
-                                {{this.alertID}}
-                                <label class="ui red circular label">{{this.length}}</label>
-                            </a>	
-                        {{/each}}
-                    </div>
-                {{/if}}
-
+            <div class="six wide left floated column">
+                <h3 class="ui header">数据异常报警</h3>
             </div>
-            <div class="eleven wide right floated column">    
-                {{#if alertIDArray}} 
+        </div>
+        <div class="row">
+            <div class="ui styled fluid accordion">
+                {{#if alertIDArray}}
                     {{#each alertIDArray}}
-                        <table class="ui selectable celled table">
-                            <thead>
-                                <tr>
-                                    <th>时间</th>
-                                    <th>信息</th>
-                                    <th>值</th>
-                                    <th>未读</th>                            
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {{#each this.alertArray}}
-                                    <tr>
-                                        <td>{{this.time}}</td>
-                                        <td>{{this.message}}</td>
-                                        <td>{{this.value}}</td>
-                                        <td>
-                                            {{#if this.isRead}}
-                                                <label class="ui grey circular label"></label>                                            
-                                            {{else}}
-                                                <label class="ui red circular label"></label>
-                                            {{/if}}
-                                        </td>                            
-                                    </tr>
-                                {{/each}}
-                            </tbody>
-                        </table>
+                        <div class="title row">
+                            <i class="dropdown icon"></i>
+                            {{this.alertID}}
+                            {{#if this.notreadLength}}
+                                <label class="ui red circular label">{{this.notreadLength}}</label>                            
+                            {{/if}}
+                        </div>	
+                                             
+                        <div class="content">
+                            <div class="accordion">
+                                {{#if this.notreadLength}}
+                                    <div class="title">
+                                        <i class="dropdown icon"></i> 未读
+                                        {{#if this.notreadLength}}
+                                            <label class="ui red circular label">{{this.notreadLength}}</label>                            
+                                        {{/if}}
+                                    </div>
+                                    <div class="content">
+                                        <table class="ui selectable celled table">
+                                            <tbody>
+                                                {{#each this.alertArray}}
+                                                    {{#if this.isRead}}
+                                                    {{else}}
+                                                        <tr>
+                                                            <td>{{this.time}}</td>
+                                                            <td>{{this.message}}</td>
+                                                            <td>{{this.value}}</td>                       
+                                                        </tr>
+                                                    {{/if}}
+                                                {{/each}}                                            
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {{/if}}
+
+                                {{#if this.ReadLength}}
+                                    <div class="title">
+                                        <i class="dropdown icon"></i> 已读 
+                                        {{#if this.ReadLength}}
+                                            <label class="ui grey circular label">{{this.ReadLength}}</label>    
+                                        {{/if}}
+                                    </div>
+                                    <div class="content">
+                                        <table class="ui selectable celled table">
+                                            <tbody>
+                                                {{#each this.alertArray}}
+                                                    {{#if this.isRead}}
+                                                        <tr>
+                                                            <td>{{this.time}}</td>
+                                                            <td>{{this.message}}</td>
+                                                            <td>{{this.value}}</td>                         
+                                                        </tr>
+                                                    {{/if}}
+                                                {{/each}}                                            
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {{/if}}
+                            </div>
+                        </div>
                     {{/each}}
-                {{/if}}
-                
+                {{/if}}         
             </div>
         </div>
     </div>
 </div>
-
 <script>
 $('.ui.dropdown').dropdown();
+$('.ui.accordion').accordion();
+$('.accordion .row').click(function(){
+    var row = $(this).index();
+    console.log("click");
+    console.log(row);
+    {{!-- $('.accordion').children().eq(row).children().eq(0).remove(); --}}
+});
 </script>
