@@ -80,4 +80,52 @@ router.get('/getNewNum',function(req,res){
     }
   });
 });
+
+
+
+/*
+get 方法
+alert/getLatestMessage?timestamp=xxx
+if 新消息的数量==0 返回数量
+else if 新消息的数量>0 返回数量、最新的消息内容和最新的时间戳
+ */
+
+router.get('/getLatestMessage',function(req,res){
+  var dTimeStamp = req.query.timestamp;
+  var sOrgID = req.session.user;
+  var db = req.app.db.alerts;
+  db.findOne({"orgID":sOrgID},function(err,result){
+    if(result == null){
+      // not found orgID
+      return res.status(200).json({
+        message:"not found your orgID",
+        orgID:sOrgID
+      });
+    }else{
+      // found
+      var aAlert = result.alertArray;
+      var iAlertIndex = aAlert.findIndex(function(element){
+        return element.time <= dTimeStamp;
+      });
+      // not found 
+      if(iAlertIndex === -1){
+        return res.status(200).json({
+          message:"not found newer than your time stamp"
+        });
+      }else{
+        if(iAlertIndex === 0){
+          return res.status(200).json({
+            iNewNum:iAlertIndex
+          });
+        }else{        
+          return res.status(200).json({
+            iNewNum:iAlertIndex,
+            sMessage:aAlert[0].message,
+            sTime:aAlert[0].time
+          });
+        }
+      }
+    }
+  });
+});
 module.exports = router;
