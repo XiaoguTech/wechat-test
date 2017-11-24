@@ -110,7 +110,10 @@ router.get('/getLatestMessage',function(req,res){
       // not found 
       if(iAlertIndex === -1){
         return res.status(200).json({
-          message:"not found newer than your time stamp"
+          message:"not found",
+          iNewNum:iAlertIndex,
+          sMessage:aAlert[0].message,
+          sTime:aAlert[0].time
         });
       }else{
         if(iAlertIndex === 0){
@@ -118,12 +121,10 @@ router.get('/getLatestMessage',function(req,res){
             iNewNum:iAlertIndex
           });
         }else{
-          var time=new Date(aAlert[0].time);
-          var showTime=time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds();
           return res.status(200).json({
             iNewNum:iAlertIndex,
             sMessage:aAlert[0].message,
-            sTime:showTime
+            sTime:aAlert[0].time
           });
         }
       }
