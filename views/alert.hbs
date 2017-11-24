@@ -35,6 +35,21 @@ iframe,#alertArea,#furtureFunction{
 #alertArea{
     padding: 1em 1.5em;
 }
+#latestMessage{
+    max-width:20em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.ui.vertical.stripe p{
+    font-size: 1em;
+}
+.ui.icon.message>.content{
+    margin-left: 2.5em;
+}
+#formatTime{
+    margin-bottom: 0;
+}
 </style>
 <div class="ui vertical stripe segment" id="alert_container">
     <div class="ui middle aligned stackable grid container">
@@ -52,23 +67,24 @@ iframe,#alertArea,#furtureFunction{
             <div class="ten wide column">
                 <div id="alertArea">
                     <div>
-                        <i class="caret right icon"></i>
-                        <span id="latestMessage"></span>
-                        <label class="ui grey label"><span class="date" id="formatTime">{{this.formatTime}}</span></label>      
-                        <div class="ui hidden message" id="timestamp"></div>                     
-                    </div>
-
-                    <div>
-                        <div class="ui hidden message" id="newMessage">
+                        <div class="ui icon hidden message" id="newMessage">
                             <div class="ui compact menu">
-                                <a class="item"><i class="icon mail"></i> Messages <div class="floating ui red label" id="newMessageNum"></div></a>
+                                <i><a class="item" id="refreshButton"><i class="icon mail"></i>新消息<div class="floating ui red label" id="newMessageNum"></div></a></i>
                             </div>
-                            <button class="ui primary button" id="refreshButton">刷新</button>
+                            <div class="content">
+                                <div class="header" id="latestMessage"></div>
+                                <p id="formatTime"></p>                                    
+                                <div class="ui hidden message" id="timestamp"></div>    
+                            </div>
                         </div>
+
 
                         <div class="ui icon message" id="loadingMessage">
                             <i class="notched circle loading icon"></i>
-                            <div class="header">稍候，我们正在为您获取内容。</div>
+                            <div class="content">
+                                <div class="header">稍候 </div>
+                                <p>我们正在为您获取内容。</p>
+                            </div>
                         </div>
 
                         <div class="ui success hidden message" id="successMessage">
@@ -96,6 +112,10 @@ iframe,#alertArea,#furtureFunction{
 <script>
 
 
+function formatTime(datetime){
+    var time=new Date(datetime);
+    return time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds();
+}
 $('.ui.dropdown').dropdown();
 $('.ui.accordion').accordion();
 $('#refreshButton').click(function(){
@@ -126,13 +146,13 @@ function updateTable(data){
         var tr=$("<tr></tr>");
         tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
         tr.append($("<td></td>").append(alertArray[obj].alertID));
-        tr.append($("<td></td>").append(alertArray[obj].time));
+        tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
         tr.append($("<td></td>").append(alertArray[obj].message));
         tr.append($("<td></td>").append(alertArray[obj].value)); 
         tbody.append(tr);
     }
     $("#latestMessage").html(jsonObj.latestMessage);
-    $("#formatTime").html(jsonObj.formatTime);
+    $("#formatTime").html(formatTime(jsonObj.latestTime));
     $("#alertList").append(tbody); 
     $("#timestamp").html(jsonObj.latestTime);
 }
@@ -152,17 +172,27 @@ $(function(){
     setInterval(function(){
         var timestamp=$("#timestamp").html();
         $.ajax({
-            url:window.location.href+"/getNewNum?timestamp="+timestamp,
+            url:window.location.href+"/getLatestMessage?timestamp="+timestamp,
             success:function(result){
-                console.log(result);
                 if(result.iNewNum!=undefined){
                     if(result.iNewNum){
                         $("#newMessageNum").html(result.iNewNum);
                         $('#newMessage').removeClass('hidden');
+                        $("#latestMessage").html(result.sMessage);
+                        $("#formatTime").html(formatTime(result.sTime));
+                    }
+                }
+                else if(result.message=="not found"){
+                    $("#newMessageNum").html("99+");
+                    $('#newMessage').removeClass('hidden');
+                    if(result.sMessage!=undefined){
+                        $("#latestMessage").html(result.sMessage);
+                        $("#formatTime").html(formatTime(result.sTime));
                     }
                 }
             }
         });
     },5000);
 });
+
 </script>
