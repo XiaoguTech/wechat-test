@@ -117,11 +117,13 @@ router.get('/getLatestMessage',function(req,res){
           return res.status(200).json({
             iNewNum:iAlertIndex
           });
-        }else{        
+        }else{
+          var time=new Date(aAlert[0].time);
+          var showTime=time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds();
           return res.status(200).json({
             iNewNum:iAlertIndex,
             sMessage:aAlert[0].message,
-            sTime:aAlert[0].time
+            sTime:showTime
           });
         }
       }
