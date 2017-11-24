@@ -8,22 +8,7 @@ router.get('/', function(req, res, next) {
   var orgID=req.session.user;
   var db = req.app.db;  
   if(req.session.user!=null){
-    db.alerts.find({"orgID":orgID},function(err,data){
-      if(data.length){
-        var jsonObj=data[0];
-        var alertArray=jsonObj["alertArray"];
-        var latestTime=alertArray[0].time;
-        var latestMessage=alertArray[0].message;
-        for(var obj in alertArray){
-          var time=new Date(alertArray[obj].time);
-          var showTime=time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds();
-          alertArray[obj].time=showTime;
-        }
-      }
-      var formatTime=alertArray[0].time;
-      res.render('alert', { title: '报警信息',user: req.session.user,alertArray:alertArray,latestTime:latestTime,latestMessage:latestMessage,formatTime:formatTime});
-
-    });    
+    res.render('alert', { title: '报警信息',user: req.session.user});
   }else{
     res.redirect('/login');     
   }
@@ -34,6 +19,7 @@ router.get('/refresh',function(req,res){
   var db = req.app.db;  
   db.alerts.find({"orgID":orgID},function(err,data){
     if(data.length){
+      var alertObject={};
       var jsonObj=data[0];
       var alertArray=jsonObj["alertArray"];
       var latestTime=alertArray[0].time;
@@ -45,7 +31,11 @@ router.get('/refresh',function(req,res){
       }
     }
     var formatTime=alertArray[0].time;
-    res.send(alertArray);
+    alertObject.alertArray=alertArray;
+    alertObject.latestTime=latestTime;
+    alertObject.latestMessage=latestMessage;
+    alertObject.formatTime=formatTime;
+    res.send(alertObject);
   });    
 
 });
@@ -64,17 +54,15 @@ router.get('/getNewNum',function(req,res){
         orgID:sOrgID
       });
     }else{
-      // found
       var aAlert = result.alertArray;
       var iAlertIndex = aAlert.findIndex(function(element){
         return element.time <= dTimeStamp;
       });
       // not found 
       if(iAlertIndex === -1){
-        return res.status(200).json({
-          message:"not found newer than your time stamp"
-        });
+        return res.status(200).json({message:"not found"});
       }else{
+      // found
         return res.status(200).json({iNewNum:iAlertIndex});
       }
     }

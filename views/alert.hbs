@@ -15,7 +15,7 @@
 .ui.celled.table tr td,.ui.table{
     border: none;
 }
-iframe{
+iframe,#alertArea,#furtureFunction{
     border: none;
     border-radius: .28571429rem;
     background: #fff;
@@ -24,8 +24,16 @@ iframe{
 .ui.horizontal.statistics .statistic{
     margin: 0;
 }
-.ui.basic.button{
+.ui.primary.button{
     margin-left:1.5em;
+}
+#newMessage{
+    background: none;
+    border: none;
+    margin:1.5em 0 0;
+}
+#alertArea{
+    padding: 1em 1.5em;
 }
 </style>
 <div class="ui vertical stripe segment" id="alert_container">
@@ -42,77 +50,119 @@ iframe{
         </div>
         <div class="row">
             <div class="ten wide column">
-                <div class="ui active nverted dimmer">
-                    <div class="ui text loader">刷新中，请稍后</div>
-                </div>
-                <div class="ui styled fluid accordion">
-                    <div class="title row active">
-                        <i class="dropdown icon"></i>
-                        {{this.latestMessage}}
-                        <label class="ui grey label"><span class="date">{{this.formatTime}}</span></label>                            
-                    </div>	
-                                            
-                    <div class="content active">
-                        <div class="ui horizontal mini statistics">
-                            <div class="red statistic">
-                                <div class="value">
-                                22
-                                </div>
-                                <div class="label">新消息</div>
-                                <button class="ui basic icon button" id="refreshButton">
-                                    <i class="refresh blue icon"></i>
-                                </button>
+                <div id="alertArea">
+                    <div>
+                        <i class="caret right icon"></i>
+                        <span id="latestMessage"></span>
+                        <label class="ui grey label"><span class="date" id="formatTime">{{this.formatTime}}</span></label>      
+                        <div class="ui hidden message" id="timestamp"></div>                     
+                    </div>
+
+                    <div>
+                        <div class="ui message" id="newMessage">
+                            <div class="ui compact menu">
+                                <a class="item"><i class="icon mail"></i> Messages <div class="floating ui red label" id="newMessageNum"></div></a>
                             </div>
+                            <button class="ui primary button" id="refreshButton">刷新</button>
                         </div>
+
+                        <div class="ui icon message" id="loadingMessage">
+                            <i class="notched circle loading icon"></i>
+                            <div class="header">稍候，我们正在为您获取内容。</div>
+                        </div>
+
+                        <div class="ui success hidden message" id="successMessage">
+                            <div class="header">报警消息已是最新。</div>
+                        </div>
+
+                        <div class="ui negative hidden message" id="errorMessage">
+                            <div class="header">刷新失败，请检查网络连接</div>
+                        </div>
+
                         <table class="ui selectable celled table" id="alertList">
                             <tbody>
                             </tbody>
                         </table>
                     </div>
                 </div>
+
             </div>
             <div class="four wide right floated column">
+
             </div>
         </div>
     </div>
 </div>
 <script>
-function updateTable(data){
-    $("#alertList").html("");
-    var tbody=$("<tbody></tbody>");      
-    for(var obj in data){
-        var tr=$("<tr></tr>");
-        tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
-        tr.append($("<td></td>").append(data[obj].alertID));
-        tr.append($("<td></td>").append(data[obj].time));
-        tr.append($("<td></td>").append(data[obj].message));
-        tr.append($("<td></td>").append(data[obj].value)); 
-        tbody.append(tr);
-    }
-    $("#alertList").append(tbody); 
-}
+
+
 $('.ui.dropdown').dropdown();
 $('.ui.accordion').accordion();
 $('#refreshButton').click(function(){
-    $('.dimmer').addClass('active');
+    $('#newMessage').addClass('hidden');
+    $('#loadingMessage').removeClass('hidden');
     $.ajax({
         url:window.location.href+"/refresh",
         success:function(data){
-            updateTable(data);
-            console.log("update");
+            updateTable(JSON.stringify(data));
+            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);  
+            setTimeout(function(){$('#successMessage').removeClass('hidden');},1000);
+            setTimeout(function(){$('#successMessage').addClass('hidden')},2000);         
+        },
+        error:function(){
+            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);  
+            setTimeout(function(){$("#errorMessage").removeClass("hidden");},1000);  
+            setTimeout(function(){$('#errorMessage').addClass('hidden');},2500);
         }
     });
-    setTimeout(function(){$('.dimmer').removeClass('active');},1200);
-
 });
+
+function updateTable(data){
+    var jsonObj=JSON.parse(data);
+    var alertArray=jsonObj.alertArray;    
+    $("#alertList").html("");
+    var tbody=$("<tbody></tbody>");
+    for(var obj in alertArray){
+        var tr=$("<tr></tr>");
+        tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
+        tr.append($("<td></td>").append(alertArray[obj].alertID));
+        tr.append($("<td></td>").append(alertArray[obj].time));
+        tr.append($("<td></td>").append(alertArray[obj].message));
+        tr.append($("<td></td>").append(alertArray[obj].value)); 
+        tbody.append(tr);
+    }
+    $("#latestMessage").html(jsonObj.latestMessage);
+    $("#formatTime").html(jsonObj.formatTime);
+    $("#alertList").append(tbody); 
+    $("#timestamp").html(jsonObj.latestTime);
+}
 $(function(){
     $.ajax({
         url:window.location.href+"/refresh",
         success:function(data){
-            updateTable(data);
+            updateTable(JSON.stringify(data));
+            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);
+        },
+        error:function(){
+            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);
+            setTimeout(function(){$("#errorMessage").removeClass("hidden");},1000);
+            setTimeout(function(){$('#errorMessage').addClass('hidden');},2500);
         }
     });
-    setTimeout(function(){$('.dimmer').removeClass('active');},1200)
+    setInterval(function(){
+        var timestamp=$("#timestamp").html();
+        $.ajax({
+            url:window.location.href+"/getNewNum?timestamp="+timestamp,
+            success:function(result){
+                console.log(result);
+                if(result.iNewNum!=undefined){
+                    if(result.isNewNum){
+                        $("#newMessageNum").html(num);
+                        $('#newMessage').removeClass('hidden');
+                    }
+                }
+            }
+        });
+    },5000);
 });
-
 </script>
