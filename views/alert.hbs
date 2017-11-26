@@ -114,7 +114,12 @@
 
 function formatTime(datetime){
     var time=new Date(datetime);
-    return time.getFullYear()+"-"+(time.getMonth()+1)+"-"+time.getDate()+" "+time.getHours()+":"+time.getMinutes()+":"+time.getSeconds();
+    return time.getFullYear()+
+    "-"+((time.getMonth()+1).toString().length>1?(time.getMonth()+1):"0"+(time.getMonth()+1))+
+    "-"+((time.getDate()).toString().length>1?time.getDate():"0"+time.getDate())+
+    " "+((time.getHours()).toString().length>1?time.getHours():"0"+time.getHours())+
+    ":"+((time.getMinutes()).toString().length>1?time.getMinutes():"0"+time.getMinutes())+
+    ":"+((time.getSeconds()).toString().length>1?time.getSeconds():"0"+time.getSeconds());
 }
 $('.ui.dropdown').dropdown();
 $('.ui.accordion').accordion();

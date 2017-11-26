@@ -86,7 +86,20 @@ body.pushable>.pusher{
 
 
 <script>
+    $('#username').bind('keyup', function(event) {
+        if (event.keyCode == "13") {
+            $('#submitButton').click();
+        }
+    });
+    $('#password').bind('keyup', function(event) {
+        if (event.keyCode == "13") {
+            $('#submitButton').click();
+        }
+    });
     $('#submitButton').click(function(){
+        checkUser();
+    });
+    function checkUser(){
         var username =$("#username").val();
         var password=$("#password").val();
         var openid=$("#openid").val();
@@ -116,5 +129,5 @@ body.pushable>.pusher{
             });
         }
         return false;
-    });
+    }
 </script>
