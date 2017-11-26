@@ -67,14 +67,14 @@ $(function(){
             success:function(result){
                 if(result.iNewNum!=undefined){
                     if(result.iNewNum){
-                        $("#newMessageNum").html(result.iNewNum);
+                        $("#alertNewMessageNum").html(result.iNewNum);
                         $('#alertNewMessage').removeClass('hidden');
                         $("#alertLatestMessage").html(result.sMessage);
                         $("#alertFormatTime").html(formatTime(result.sTime));
                     }
                 }
                 else if(result.message=="not found"){
-                    $("#newMessageNum").html("99+");
+                    $("#alertNewMessageNum").html("99+");
                     $('#alertNewMessage').removeClass('hidden');
                     if(result.sMessage!=undefined){
                         $("#alertLatestMessage").html(result.sMessage);
