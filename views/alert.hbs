@@ -1,127 +1,47 @@
-
-<style>
-.ui.vertical.stripe{
-    padding:5em 0 3em;
-}
-#alert_container{
-    {{!-- background: #252222; --}}
-}
-.ui.label{
-    float: right;
-}
-.ui.empty.circular.label{
-    float: none;
-}
-.ui.celled.table tr td,.ui.table{
-    border: none;
-}
-#alertArea,#furtureFunction{
-    border: none;
-    border-radius: .28571429rem;
-    background: #fff;
-    box-shadow: 0 1px 2px 0 rgba(34,36,38,.15), 0 0 0 1px rgba(34,36,38,.15);
-}
-.ui.horizontal.statistics .statistic{
-    margin: 0;
-}
-.ui.primary.button{
-    margin-left:1.5em;
-}
-#newMessage{
-    background: none;
-    border: none;
-    margin:1.5em 0 0;
-}
-#alertArea{
-    padding: 1em 1.5em;
-}
-#latestMessage{
-    max-width:20em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.ui.vertical.stripe p{
-    font-size: 1em;
-}
-.ui.icon.message>.content{
-    margin-left: 2.5em;
-}
-#formatTime{
-    margin-bottom: 0;
-}
-@media screen and (max-width:400px){
-    iframe{
-        height: 220px;
-    }
-}
-@media (min-width:400px) and (max-width:600px){
-    iframe{
-        height: 240px;
-    }
-}
-@media (min-width:600px) and (max-width:800px){
-    iframe{
-        height: 260px;
-    }
-}
-@media (min-width:800px) and (max-width:1000px){
-    iframe{
-        height: 280px;
-    }
-}
-@media screen and (min-width:1000px){
-    iframe{
-        height: 280px;
-    }
-}
-
-</style>
-<div class="ui vertical stripe segment" id="alert_container">
+<div class="ui vertical stripe segment" id="alertWholeContainer">
     <div class="ui middle aligned stackable grid container">
         <div class="row">
             <div class="six wide left floated column">
-                <h3 class="ui header">数据异常报警</h3>
+                <h3 class="ui header"><a href="http://123.206.82.207:3000/dashboard-solo/db/voltage?refresh=10s&panelId=7&orgId=1&tab=metrics" target="_blank">数据异常报警</a></h3>
             </div>
         </div>
         <div class="row">
             <div class="sixteen wide column">
-                <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?refresh=10s&panelId=7&orgId=1&tab=metrics&theme=light" width="100%" style="border:none;"></iframe>
+                <iframe src="http://123.206.82.207:3000/dashboard-solo/db/voltage?refresh=10s&panelId=7&orgId=1&tab=metrics" width="100%" style="border:none;" class="alertIframe"></iframe>
             </div>
         </div>
         <div class="row">
             <div class="ten wide column">
-                <div id="alertArea">
+                <div id="alertMessageArea">
                     <div>
-                        <div class="ui icon hidden message" id="newMessage">
+                        <div class="ui icon message" id="alertNewMessage">
                             <div class="ui compact menu">
-                                <i><a class="item" id="refreshButton"><i class="icon mail"></i>新消息<div class="floating ui red label" id="newMessageNum"></div></a></i>
+                                <i><a class="item" id="refreshButton"><i class="icon mail"></i>新消息<div class="floating ui red label" id="alertNewMessageNum"></div></a></i>
                             </div>
-                            <div class="content">
-                                <div class="header" id="latestMessage"></div>
-                                <p id="formatTime"></p>                                    
+                            <div class="content alertMessageContent">
+                                <div class="header" id="alertLatestMessage"></div>
+                                <p id="alertFormatTime"></p>                                    
                                 <div class="ui hidden message" id="timestamp"></div>    
                             </div>
                         </div>
 
-
-                        <div class="ui icon message" id="loadingMessage">
+                        <div class="ui icon message" id="alertLoadingMessage">
                             <i class="notched circle loading icon"></i>
-                            <div class="content">
+                            <div class="content alertMessageContent">
                                 <div class="header">稍候 </div>
                                 <p>我们正在为您获取内容。</p>
                             </div>
                         </div>
 
-                        <div class="ui success hidden message" id="successMessage">
+                        <div class="ui success hidden message" id="alertSuccessMessage">
                             <div class="header">报警消息已是最新。</div>
                         </div>
 
-                        <div class="ui negative hidden message" id="errorMessage">
+                        <div class="ui negative hidden message" id="alertErrorMessage">
                             <div class="header">刷新失败，请检查网络连接</div>
                         </div>
 
-                        <table class="ui selectable celled table" id="alertList">
+                        <table class="ui selectable celled table" id="alertTableList">
                             <tbody>
                             </tbody>
                         </table>
@@ -135,95 +55,4 @@
         </div>
     </div>
 </div>
-<script>
-
-
-function formatTime(datetime){
-    var time=new Date(datetime);
-    return time.getFullYear()+
-    "-"+((time.getMonth()+1).toString().length>1?(time.getMonth()+1):"0"+(time.getMonth()+1))+
-    "-"+((time.getDate()).toString().length>1?time.getDate():"0"+time.getDate())+
-    " "+((time.getHours()).toString().length>1?time.getHours():"0"+time.getHours())+
-    ":"+((time.getMinutes()).toString().length>1?time.getMinutes():"0"+time.getMinutes())+
-    ":"+((time.getSeconds()).toString().length>1?time.getSeconds():"0"+time.getSeconds());
-}
-$('.ui.dropdown').dropdown();
-$('.ui.accordion').accordion();
-$('#refreshButton').click(function(){
-    $('#newMessage').addClass('hidden');
-    $('#loadingMessage').removeClass('hidden');
-    $.ajax({
-        url:window.location.href+"/refresh",
-        success:function(data){
-            updateTable(JSON.stringify(data));
-            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);  
-            setTimeout(function(){$('#successMessage').removeClass('hidden');},1000);
-            setTimeout(function(){$('#successMessage').addClass('hidden')},2000);         
-        },
-        error:function(){
-            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);  
-            setTimeout(function(){$("#errorMessage").removeClass("hidden");},1000);  
-            setTimeout(function(){$('#errorMessage').addClass('hidden');},2500);
-        }
-    });
-});
-
-function updateTable(data){
-    var jsonObj=JSON.parse(data);
-    var alertArray=jsonObj.alertArray;    
-    $("#alertList").html("");
-    var tbody=$("<tbody></tbody>");
-    for(var obj in alertArray){
-        var tr=$("<tr></tr>");
-        tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
-        tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
-        tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
-        tr.append($("<td></td>").append(alertArray[obj].message));
-        tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
-        tbody.append(tr);
-    }
-    $("#latestMessage").html(jsonObj.latestMessage);
-    $("#formatTime").html(formatTime(jsonObj.latestTime));
-    $("#alertList").append(tbody); 
-    $("#timestamp").html(jsonObj.latestTime);
-}
-$(function(){
-    $.ajax({
-        url:window.location.href+"/refresh",
-        success:function(data){
-            updateTable(JSON.stringify(data));
-            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);
-        },
-        error:function(){
-            setTimeout(function(){$('#loadingMessage').addClass('hidden');},1000);
-            setTimeout(function(){$("#errorMessage").removeClass("hidden");},1000);
-            setTimeout(function(){$('#errorMessage').addClass('hidden');},2500);
-        }
-    });
-    setInterval(function(){
-        var timestamp=$("#timestamp").html();
-        $.ajax({
-            url:window.location.href+"/getLatestMessage?timestamp="+timestamp,
-            success:function(result){
-                if(result.iNewNum!=undefined){
-                    if(result.iNewNum){
-                        $("#newMessageNum").html(result.iNewNum);
-                        $('#newMessage').removeClass('hidden');
-                        $("#latestMessage").html(result.sMessage);
-                        $("#formatTime").html(formatTime(result.sTime));
-                    }
-                }
-                else if(result.message=="not found"){
-                    $("#newMessageNum").html("99+");
-                    $('#newMessage').removeClass('hidden');
-                    if(result.sMessage!=undefined){
-                        $("#latestMessage").html(result.sMessage);
-                        $("#formatTime").html(formatTime(result.sTime));
-                    }
-                }
-            }
-        });
-    },5000);
-});
-
-</script>
+<script src="/javascripts/alert.js"></script>

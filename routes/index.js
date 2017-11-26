@@ -40,12 +40,12 @@ router.get('/login',function(req,res){
           res.redirect('/');
         }
         else{
-          res.render('login',{ openid:openid});    
+          res.render('login',{ openid:openid,hide_footer:"hide_footer",hide_navigation:"hide_navigation"});    
         }
       });
     }
     else{
-      res.render('login');      
+      res.render('login',{hide_footer:"hide_footer",hide_navigation:"hide_navigation"});    
     }
 
   }

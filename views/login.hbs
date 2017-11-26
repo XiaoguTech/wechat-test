@@ -1,80 +1,38 @@
 <style>
 body.pushable>.pusher{
     height: 100%;
-    background: url(/images/demo4.jpg);
-}
-#footer,#navigation{
-    display: none;
-}
-.image {
-    margin-top: -100px;
-}
-.column {
-    max-width: 450px;
-}
-.loginBox{
-    background-color: rgba(160,160,160,0.1);
-    padding: 6em 3em 2em;
-    border-radius: 1em;
-}
-.ui.header:first-child{
-    color: #fff;
-}
-.column{
-    max-width: 500px;
-}
-.ui.segment{
-    background: none;
-}
-.ui.header:first-child{
-    font-size: 2.5em;
-}
-.ui.teal.button{
-    background: #2185d0;
-    margin-top: 1.5em;
-}
-.ui.form .field .ui.input input{
-    height: 3em;
-    font-size: 1.1em;
+    background: url(/images/databackground.jpg);
 }
 .ui.stacked.segment,.ui.stacked.segment::after{
     box-shadow: none;
     border: none;
     background: none;
 }
-.ui.ui.stacked.segment{
-    padding: 1em 2em;
-}
-#errorMessage{
-    margin: 1em 0;
-    height: 2em;
-    color: #9d2535;
-    font-weight: 700;
-    line-height: 2em;
-    font-size: 1.1em;
+.ui.segment{
+    background: none;
 }
 </style>
 
 <div class="ui middle aligned center aligned grid" style="height:100%">
-  <div class="column">
-      <div class="loginBox">
-            <h2 class="ui header">Broken Arrow</h2>      
+  <div class="column" id="loginContainer">
+      <div class="loginInnerBox">
+            <h2 class="ui header loginHeader">Broken Arrow</h2>      
             <form class="ui large form error" name="loginForm" id="loginForm" action="#" method="post">
-                <div class="ui stacked segment">
+                <div class="ui stacked segment" id="loginFieldContainer">
                     <div class="field">
                         <div class="ui left icon input">
                             <i class="user icon"></i>
-                            <input name="username" type="text" placeholder="组织代码" required="required" id="username"/>
+                            <input name="loginUsername" type="text" placeholder="组织代码" required="required" id="loginUsername"/>
                         </div>
                     </div>
                     <div class="field">
                         <div class="ui left icon input">
                             <i class="lock icon"></i>
-                            <input name="password" type="password" placeholder="Token" required="required" id="password"/>
+                            <input name="loginPassword" type="password" placeholder="Token" required="required" id="loginPassword"/>
                         </div>
                     </div>
-                    <div class="ui fluid large teal submit button" id="submitButton">Login</div>
-                    <div id="errorMessage"></div>
+                    <div class="ui fluid large teal submit button" id="loginSubmitButton">Login</div>
+                    <div id="loginErrorMessage"></div>
                 </div>
                 <input type="hidden" value={{openid}} id="openid">
             </form>
@@ -83,51 +41,4 @@ body.pushable>.pusher{
   </div>
 </div>
 
-
-
-<script>
-    $('#username').bind('keyup', function(event) {
-        if (event.keyCode == "13") {
-            $('#submitButton').click();
-        }
-    });
-    $('#password').bind('keyup', function(event) {
-        if (event.keyCode == "13") {
-            $('#submitButton').click();
-        }
-    });
-    $('#submitButton').click(function(){
-        checkUser();
-    });
-    function checkUser(){
-        var username =$("#username").val();
-        var password=$("#password").val();
-        var openid=$("#openid").val();
-        var data={"username":username,"password":password,"openid":openid};
-        if(username==""){
-            $('#errorMessage').html("用户名不能为空");
-            setTimeout(function(){$('#errorMessage').html("");},1500);
-        }else if(password==""){
-            $('#errorMessage').html("密码不能为空");
-            setTimeout(function(){$('#errorMessage').html("");},1500);
-        }else{
-            $.ajax({
-                url:"/checkLogin",
-                type:"post",
-                data:data,
-                success:function(data,status){
-                    if(status=="success"){
-                        location.href="/";
-                    }
-                },
-                error:function(data,status){
-                    if(status=="error"){
-                        $('#errorMessage').html("用户名或密码错误");
-                        setTimeout(function(){$('#errorMessage').html("");},1500);
-                    }
-                }
-            });
-        }
-        return false;
-    }
-</script>
+<script src="/javascripts/login.js"></script>
