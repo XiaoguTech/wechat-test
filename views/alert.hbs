@@ -148,7 +148,7 @@ function updateTable(data){
         tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
         tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
         tr.append($("<td></td>").append(alertArray[obj].message));
-        tr.append($("<td></td>").append(alertArray[obj].value)); 
+        tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
         tbody.append(tr);
     }
     $("#latestMessage").html(jsonObj.latestMessage);
