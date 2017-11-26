@@ -198,7 +198,8 @@ router.get('/solution',function(req,res){
 						alertID:sAlertID
 					});
 				}else{
-					return res.status(200).json(aArray[iAlertIndex]);
+					// return res.status(200).json(aArray[iAlertIndex]);
+					res.redirect(aArray[iAlertIndex].openKBURL);
 				}
 			}
 		});

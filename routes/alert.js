@@ -92,7 +92,6 @@ router.get('/getLatestMessage',function(req,res){
         if(aAlert.length>0){
           return res.status(200).json({
             message:"not found",
-            iNewNum:iAlertIndex,
             sMessage:aAlert[0].message,
             sTime:aAlert[0].time
           });

@@ -1,7 +1,28 @@
 <style>
-  #top_segement{
-    padding: 4em 0;
-  }
+#top_segement {
+    z-index: 1;
+}
+#top_segement:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
+#top_segement{
+    background-position: center top;
+    background-size: cover;
+    padding: 4em 0;        
+}
+#top_segement::after {
+    background-image:url(/images/demo2.jpg);
+    background-position: center top;
+    background-size: cover;
+    background-attachment: fixed;
+    filter: blur(15px);
+}
 </style>
 <div class="ui inverted vertical masthead center aligned segment" id="top_segement">
   <div class="ui text container">
@@ -12,6 +33,7 @@
     <div class="ui huge primary button" onclick="javascript:window.location.href='/metric'">开始体验<i class="right arrow icon"></i></div>
   </div>
 </div>
+
 
 <div class="ui vertical stripe segment">
   <div class="ui middle aligned stackable grid container">
