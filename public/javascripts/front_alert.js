@@ -30,6 +30,11 @@ $('#alertRefreshButton').click(function(){
 
 function updateTable(data){
     var jsonObj=JSON.parse(data);
+    if(jsonObj.alertArray==undefined){
+        $("#timestamp").html("1901-01-01T00:00:00.635294222Z");
+        return;
+    }
+    
     var alertArray=jsonObj.alertArray; 
     var alertCount=alertArray.length;//记录条数
     var pageSize=10;//每页显示条数
@@ -49,15 +54,28 @@ function updateTable(data){
     //显示默认页（第一页）  
     $("#alertTableList").html("");
     var tbody=$("<tbody></tbody>");
-    for(obj=(currentPage-1)*pageSize;obj<pageSize*currentPage;obj++){    
-        var tr=$("<tr></tr>");
-        tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
-        tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
-        tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
-        tr.append($("<td></td>").append(alertArray[obj].message));
-        tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
-        tbody.append(tr); 
-    }  
+    if(pageCount!=1){
+        for(obj=(currentPage-1)*pageSize;obj<pageSize*currentPage;obj++){    
+            var tr=$("<tr></tr>");
+            tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
+            tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
+            tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
+            tr.append($("<td></td>").append(alertArray[obj].message));
+            tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
+            tbody.append(tr); 
+        }  
+    }else{
+        for(obj=(currentPage-1)*pageSize;obj<alertCount;obj++){    
+            var tr=$("<tr></tr>");
+            tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
+            tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
+            tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
+            tr.append($("<td></td>").append(alertArray[obj].message));
+            tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
+            tbody.append(tr); 
+        }  
+    }
+
     $("#alertTableList").append(tbody); 
     
 
@@ -145,6 +163,8 @@ $(function(){
         $.ajax({
             url:window.location.href+"/getLatestMessage?timestamp="+timestamp,
             success:function(result){
+                var tableLength = document.getElementsByTagName('tbody')[0].getElementsByTagName('tr').length;   
+                console.log(tableLength);     
                 if(result.iNewNum!=undefined){
                     if(result.iNewNum){
                         $("#alertNewMessageNum").html(result.iNewNum);
@@ -153,7 +173,7 @@ $(function(){
                         $("#alertFormatTime").html(formatTime(result.sTime));
                     }
                 }
-                else if(result.message=="not found"){
+                else if(result.message=="not found" && tableLength==99){
                     $("#alertNewMessageNum").html("99+");
                     $('#alertNewMessage').removeClass('hidden');
                     if(result.sMessage!=undefined){
