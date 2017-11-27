@@ -172,9 +172,15 @@ $(function(){
                         $("#alertLatestMessage").html(result.sMessage);
                         $("#alertFormatTime").html(formatTime(result.sTime));
                     }
-                }
-                else if(result.message=="not found" && tableLength==10){
+                }else if(result.message=="not found" && tableLength==10){
                     $("#alertNewMessageNum").html("99+");
+                    $('#alertNewMessage').removeClass('hidden');
+                    if(result.sMessage!=undefined){
+                        $("#alertLatestMessage").html(result.sMessage);
+                        $("#alertFormatTime").html(formatTime(result.sTime));
+                    }
+                }else if(result.message=="not found"){
+                    $("#alertNewMessageNum").html("");
                     $('#alertNewMessage').removeClass('hidden');
                     if(result.sMessage!=undefined){
                         $("#alertLatestMessage").html(result.sMessage);
