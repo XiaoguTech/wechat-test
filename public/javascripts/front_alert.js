@@ -173,7 +173,7 @@ $(function(){
                         $("#alertFormatTime").html(formatTime(result.sTime));
                     }
                 }
-                else if(result.message=="not found" && tableLength==99){
+                else if(result.message=="not found" && tableLength==10){
                     $("#alertNewMessageNum").html("99+");
                     $('#alertNewMessage').removeClass('hidden');
                     if(result.sMessage!=undefined){
