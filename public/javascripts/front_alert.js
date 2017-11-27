@@ -9,7 +9,7 @@ function formatTime(datetime){
 }
 $('.ui.dropdown').dropdown();
 $('.ui.accordion').accordion();
-$('#refreshButton').click(function(){
+$('#alertRefreshButton').click(function(){
     $('#alertNewMessage').addClass('hidden');
     $('#alertLoadingMessage').removeClass('hidden');
     $.ajax({

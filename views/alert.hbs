@@ -1,8 +1,13 @@
+<style type="text/css">
+body.pushable>.pusher{
+  background: #111111;
+}
+</style>
 <div class="ui vertical stripe segment" id="alertWholeContainer">
     <div class="ui middle aligned stackable grid container">
         <div class="row">
             <div class="six wide left floated column">
-                <h3 class="ui header"><a href="http://123.206.82.207:3000/dashboard-solo/db/voltage?refresh=10s&panelId=7&orgId=1&tab=metrics" target="_blank">数据异常报警</a></h3>
+                <h1 class="ui header"><a href="{{this.url}}" target="_blank" class="alertGraphUrl">数据异常报警</a></h1>
             </div>
         </div>
         <div class="row">
@@ -15,8 +20,8 @@
                 <div id="alertMessageArea">
                     <div>
                         <div class="ui icon hidden message" id="alertNewMessage">
-                            <div class="ui compact menu">
-                                <i><a class="item" id="refreshButton"><i class="icon mail"></i>新消息<div class="floating ui red label" id="alertNewMessageNum"></div></a></i>
+                            <div class="ui compact menu" id="alertRefreshContainer">
+                                <i><a class="item" id="alertRefreshButton"><i class="icon mail"></i>新消息<div class="floating ui red label" id="alertNewMessageNum"></div></a></i>
                             </div>
                             <div class="content alertMessageContent">
                                 <div class="header" id="alertLatestMessage"></div>
