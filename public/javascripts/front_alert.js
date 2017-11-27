@@ -36,6 +36,8 @@ function updateTable(data){
     var pageCount=Math.ceil(alertCount/pageSize);//计算总页数 
     var currentPage =1;//当前页，默认为1。 
     //造个简单的分页按钮  
+    $('#alertPageContainer').html("");  
+    $('#alertPageSelect').html("");
     for(var i=1;i<=pageCount;i++){  
         var pageNode="<a href='javascript:' class='alertPageNum' selectPage='"+i+"'>"+i+"</a>";
         var optionNode="<option selectPage='"+i+"'>"+i+"</option>";
