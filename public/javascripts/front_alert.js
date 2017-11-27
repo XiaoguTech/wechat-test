@@ -30,23 +30,71 @@ $('#alertRefreshButton').click(function(){
 
 function updateTable(data){
     var jsonObj=JSON.parse(data);
-    var alertArray=jsonObj.alertArray;    
+    var alertArray=jsonObj.alertArray; 
+    console.log(alertArray.length);    
+    var alertCount=alertArray.length;//记录条数
+    var pageSize=10;//每页显示条数
+    var pageCount=Math.ceil(alertCount/pageSize);//计算总页数 
+    var currentPage =1;//当前页，默认为1。 
+    //造个简单的分页按钮  
+    for(var i=1;i<=pageCount;i++){  
+        var pageNode="<a href='javascript:' class='alertPageNum' selectPage='"+i+"'>"+i+"</a>";
+        $('#alertPageContainer').append(pageNode);  
+    }  
+    //显示默认页（第一页）  
     $("#alertTableList").html("");
     var tbody=$("<tbody></tbody>");
-    for(var obj in alertArray){
+    for(obj=(currentPage-1)*pageSize;obj<pageSize*currentPage;obj++){    
         var tr=$("<tr></tr>");
         tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
         tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
         tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
         tr.append($("<td></td>").append(alertArray[obj].message));
         tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
-        tbody.append(tr);
-    }
+        tbody.append(tr); 
+    }  
+    $("#alertTableList").append(tbody); 
+    
+
+
+    //显示选择页的内容  
+    $('.alertPageNum').click(function(){  
+        var selectPage=$(this).attr('selectPage');
+        $("#alertTableList").html("");
+        var tbody=$("<tbody></tbody>");
+        if(selectPage!=pageCount){
+            for(obj=(selectPage-1)*pageSize;obj<pageSize*selectPage;obj++){  
+                var tr=$("<tr></tr>");
+                tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
+                tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
+                tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
+                tr.append($("<td></td>").append(alertArray[obj].message));
+                tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
+                tbody.append(tr);        
+            }
+        }
+        else{
+            for(obj=(selectPage-1)*pageSize;obj<alertCount;obj++){  
+                var tr=$("<tr></tr>");
+                tr.append($("<td></td>").append("<label class='ui red empty circular label'></label>"));
+                tr.append($("<td></td>").append($("<a href='/api/solution?alertID="+alertArray[obj].alertID+"' target='_blank'>"+alertArray[obj].alertID+"</a>")));
+                tr.append($("<td></td>").append(formatTime(alertArray[obj].time)));
+                tr.append($("<td></td>").append(alertArray[obj].message));
+                tr.append($("<td></td>").append(alertArray[obj].value.toFixed(3))); 
+                tbody.append(tr);        
+            }
+        }
+
+        $("#alertTableList").append(tbody); 
+    }); 
+   
+
+
     $("#alertLatestMessage").html(jsonObj.latestMessage);
     $("#alertFormatTime").html(formatTime(jsonObj.latestTime));
-    $("#alertTableList").append(tbody); 
     $("#timestamp").html(jsonObj.latestTime);
 }
+
 $(function(){
     $.ajax({
         url:window.location.href+"/refresh",

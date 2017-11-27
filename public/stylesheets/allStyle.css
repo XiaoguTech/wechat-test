@@ -186,6 +186,16 @@ body {
 #alertRefreshContainer{
     background: #333333;
 }
+#alertPageContainer{
+    padding: 0.8em 4em;
+    text-align: center;
+}
+.alertPageNum{
+    padding: 0.8em 1em;
+    margin:0 0.45em;
+    background-color: #333333;
+    color:#fff;
+}
 
 
 
